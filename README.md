@@ -40,3 +40,7 @@ npm run cap:sync
 
 - Valet tracking: `WS /ws/valet/{transfer_id}?token=...`
 - Customer-mechanic chat: `WS /ws/chat/{conversation_id}?token=...`
+
+## Deployment
+
+Oracle Linux server deployment guide: [DEPLOY_ORACLE_LINUX.md](DEPLOY_ORACLE_LINUX.md)
