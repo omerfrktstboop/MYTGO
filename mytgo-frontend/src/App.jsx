@@ -6,14 +6,17 @@ import {
   Check,
   LogOut,
   MapPin,
+  Menu,
   MessageCircle,
   Play,
   Plus,
   Send,
   ShieldCheck,
+  Sparkles,
   Square,
   UserRound,
   Wrench,
+  X,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { CircleMarker, MapContainer, Polyline, Popup, TileLayer } from "react-leaflet";
@@ -257,6 +260,7 @@ function Dashboard({ token, user, onLogout }) {
   const [conversations, setConversations] = useState([]);
   const [users, setUsers] = useState([]);
   const [active, setActive] = useState(navByRole[user.role][0][0]);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
 
@@ -284,6 +288,13 @@ function Dashboard({ token, user, onLogout }) {
   useEffect(() => {
     refresh();
   }, [token, user.role]);
+
+  const totals = [
+    ["Araç", vehicles.length],
+    ["Randevu", appointments.length],
+    ["Vale", valetRequests.length],
+    ["Chat", conversations.length],
+  ];
 
   const panels = {
     Araç: (
@@ -337,18 +348,100 @@ function Dashboard({ token, user, onLogout }) {
   };
 
   return (
-    <main className="min-h-dvh bg-mytgo-panel text-mytgo-ink">
-      <section className="mx-auto flex min-h-dvh w-full max-w-5xl flex-col px-4 pb-[calc(5.75rem+env(safe-area-inset-bottom))] pt-[calc(1rem+env(safe-area-inset-top))] sm:px-6">
-        <header className="flex items-center justify-between border-b border-mytgo-line pb-4">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-mytgo-teal">
-              MYTGO
-            </p>
-            <h1 className="mt-1 text-2xl font-semibold">{roleLabels[user.role]} Paneli</h1>
-          </div>
-          <button className="icon-command" type="button" onClick={onLogout} title="Çıkış">
-            <LogOut size={20} />
+    <main className="app-shell min-h-dvh text-mytgo-ink">
+      {sidebarOpen && (
+        <button
+          aria-label="Menüyü kapat"
+          className="sidebar-scrim lg:hidden"
+          type="button"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      <aside className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`}>
+        <div className="flex items-center justify-between gap-3">
+          <BrandLogo />
+          <button
+            aria-label="Menüyü kapat"
+            className="icon-command border-white/20 bg-white/10 text-white lg:hidden"
+            type="button"
+            onClick={() => setSidebarOpen(false)}
+          >
+            <X size={18} />
           </button>
+        </div>
+
+        <div className="mt-8 rounded-3xl bg-white/14 p-4 text-white shadow-glow ring-1 ring-white/20">
+          <p className="text-xs font-bold uppercase tracking-[0.22em] text-cyan-100">Canlı Operasyon</p>
+          <p className="mt-2 text-2xl font-black">{roleLabels[user.role]} Paneli</p>
+          <p className="mt-1 text-sm text-white/75">Servis, vale ve chat tek ekranda.</p>
+        </div>
+
+        <nav className="mt-8 grid gap-2" aria-label="Ana menü">
+          {navByRole[user.role].map(([label, Icon]) => (
+            <button
+              key={label}
+              className={`sidebar-link ${active === label ? "sidebar-link-active" : ""}`}
+              type="button"
+              onClick={() => {
+                setActive(label);
+                setSidebarOpen(false);
+              }}
+              title={label}
+            >
+              <Icon size={20} />
+              <span>{label}</span>
+            </button>
+          ))}
+        </nav>
+
+        <div className="mt-auto rounded-3xl border border-white/15 bg-white/10 p-4 text-white">
+          <p className="text-sm font-bold">{user.full_name}</p>
+          <p className="mt-1 text-xs uppercase tracking-[0.18em] text-white/65">{roleLabels[user.role]}</p>
+          <button
+            className="mt-4 w-full justify-start border-white/20 bg-white/10 text-white command"
+            type="button"
+            onClick={onLogout}
+          >
+            <LogOut size={18} />
+            Çıkış
+          </button>
+        </div>
+      </aside>
+
+      <section className="dashboard-surface min-h-dvh px-4 py-5 sm:px-6 lg:ml-[19rem] lg:px-8">
+        <header className="hero-card overflow-hidden rounded-[2rem] p-5 text-white shadow-glow sm:p-7">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <button
+                aria-label="Menüyü aç"
+                className="mb-4 inline-grid h-11 w-11 place-items-center rounded-2xl bg-white/16 text-white ring-1 ring-white/25 lg:hidden"
+                type="button"
+                onClick={() => setSidebarOpen(true)}
+              >
+                <Menu size={22} />
+              </button>
+              <p className="text-xs font-bold uppercase tracking-[0.24em] text-cyan-100">MYTGO kontrol merkezi</p>
+              <h1 className="mt-2 max-w-2xl text-3xl font-black leading-tight sm:text-4xl">
+                Parlak, hızlı ve canlı araç servis yönetimi
+              </h1>
+              <p className="mt-3 max-w-2xl text-sm text-white/78 sm:text-base">
+                {roleLabels[user.role]} akışı için randevu, vale takibi ve mesajlaşma modern tek panelde.
+              </p>
+            </div>
+            <div className="hidden shrink-0 rounded-3xl bg-white/15 p-3 ring-1 ring-white/20 sm:block">
+              <BrandLogo compact />
+            </div>
+          </div>
+
+          <div className="mt-6 grid gap-3 sm:grid-cols-4">
+            {totals.map(([label, value]) => (
+              <div className="rounded-2xl bg-white/14 px-4 py-3 ring-1 ring-white/18" key={label}>
+                <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/65">{label}</p>
+                <p className="mt-1 text-2xl font-black">{value}</p>
+              </div>
+            ))}
+          </div>
         </header>
 
         {(notice || error) && (
@@ -361,28 +454,8 @@ function Dashboard({ token, user, onLogout }) {
           </p>
         )}
 
-        <div className="py-5">{panels[active]}</div>
+        <div className="py-6">{panels[active]}</div>
       </section>
-
-      <nav className="fixed inset-x-0 bottom-0 border-t border-mytgo-line bg-white/95 px-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3 backdrop-blur">
-        <div
-          className="mx-auto grid max-w-5xl gap-2"
-          style={{ gridTemplateColumns: `repeat(${navByRole[user.role].length}, minmax(0, 1fr))` }}
-        >
-          {navByRole[user.role].map(([label, Icon]) => (
-            <button
-              key={label}
-              className={`bottom-command ${active === label ? "bottom-command-active" : ""}`}
-              type="button"
-              onClick={() => setActive(label)}
-              title={label}
-            >
-              <Icon size={21} />
-              <span>{label}</span>
-            </button>
-          ))}
-        </div>
-      </nav>
     </main>
   );
 }
@@ -886,17 +959,46 @@ function AppointmentList({ appointments }) {
   );
 }
 
+function BrandLogo({ compact = false }) {
+  return (
+    <div className="flex items-center gap-3">
+      <span className="logo-mark">
+        <CarFront size={compact ? 24 : 28} />
+        <Sparkles className="absolute -right-1 -top-1 text-yellow-300" size={compact ? 14 : 16} />
+      </span>
+      {!compact && (
+        <span>
+          <span className="block text-2xl font-black tracking-tight text-white">MYTGO</span>
+          <span className="block text-xs font-bold uppercase tracking-[0.24em] text-cyan-100">
+            Mobil oto servis
+          </span>
+        </span>
+      )}
+    </div>
+  );
+}
+
 function ShellFrame({ title, subtitle, children }) {
   return (
-    <main className="min-h-dvh bg-mytgo-panel text-mytgo-ink">
-      <section className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center px-4 py-8">
-        <div className="border-b border-mytgo-line pb-5">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-mytgo-teal">
-            {title}
+    <main className="auth-shell min-h-dvh text-mytgo-ink">
+      <section className="mx-auto grid min-h-dvh w-full max-w-6xl items-center gap-8 px-4 py-8 lg:grid-cols-[1.1fr_0.9fr] lg:px-8">
+        <div className="hidden rounded-[2.25rem] bg-mytgo-gradient p-8 text-white shadow-glow lg:block">
+          <BrandLogo />
+          <h1 className="mt-10 max-w-xl text-5xl font-black leading-tight">
+            Aracını servis, vale ve chat ile tek panelden yönet.
+          </h1>
+          <p className="mt-5 max-w-lg text-lg text-white/76">
+            Canlı konum takibi, randevu akışı ve rol bazlı operasyonlar için modern MYTGO deneyimi.
           </p>
-          {subtitle && <h1 className="mt-2 text-2xl font-semibold">{subtitle}</h1>}
         </div>
-        <div className="pt-5">{children}</div>
+        <div className="rounded-[2rem] border border-white/70 bg-white/88 p-5 shadow-soft backdrop-blur sm:p-7">
+          <BrandLogo compact />
+          <div className="mt-6 border-b border-mytgo-line pb-5">
+            <p className="text-xs font-black uppercase tracking-[0.24em] text-mytgo-teal">{title}</p>
+            {subtitle && <h1 className="mt-2 text-2xl font-black">{subtitle}</h1>}
+          </div>
+          <div className="pt-5">{children}</div>
+        </div>
       </section>
     </main>
   );
@@ -904,12 +1006,15 @@ function ShellFrame({ title, subtitle, children }) {
 
 function Panel({ title, icon: Icon, children }) {
   return (
-    <section className="grid gap-4">
+    <section className="panel-card grid gap-4 p-4 sm:p-5">
       <div className="flex items-center gap-3">
-        <span className="grid h-11 w-11 place-items-center rounded-full bg-mytgo-teal text-white">
+        <span className="grid h-12 w-12 place-items-center rounded-2xl bg-mytgo-gradient text-white shadow-glow">
           <Icon size={22} />
         </span>
-        <h2 className="text-xl font-semibold">{title}</h2>
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-mytgo-teal">Operasyon</p>
+          <h2 className="text-2xl font-black">{title}</h2>
+        </div>
       </div>
       {children}
     </section>
@@ -950,14 +1055,14 @@ function CardGrid({ children }) {
 
 function InfoCard({ title, meta, children }) {
   return (
-    <article className="rounded-lg border border-mytgo-line bg-white p-4">
+    <article className="rounded-3xl border border-mytgo-line/70 bg-white/90 p-4 shadow-soft transition hover:-translate-y-0.5 hover:shadow-glow">
       <div className="flex items-start justify-between gap-3">
-        <h3 className="font-semibold">{title}</h3>
-        <span className="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700">
+        <h3 className="font-black">{title}</h3>
+        <span className="rounded-full bg-orange-100 px-2.5 py-1 text-xs font-black text-orange-700">
           {meta}
         </span>
       </div>
-      <div className="mt-2 text-sm text-neutral-600">{children}</div>
+      <div className="mt-2 text-sm text-slate-600">{children}</div>
     </article>
   );
 }
