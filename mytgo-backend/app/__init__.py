@@ -1,0 +1,1 @@
+"""MYTGO backend application package."""

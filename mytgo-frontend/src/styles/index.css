@@ -1,0 +1,107 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+input,
+textarea,
+select {
+  width: 100%;
+  min-height: 2.75rem;
+  border: 1px solid #d9d8cc;
+  border-radius: 0.5rem;
+  background: #fff;
+  padding: 0.625rem 0.75rem;
+  color: #171717;
+  outline: none;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: #0f766e;
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.16);
+}
+
+.command {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid #d9d8cc;
+  padding: 0.625rem 0.875rem;
+  font-weight: 700;
+}
+
+.command-primary {
+  border-color: #171717;
+  background: #171717;
+  color: #fff;
+}
+
+.command-ghost {
+  background: #fff;
+  color: #171717;
+}
+
+.mini-command {
+  min-height: 2.25rem;
+  border-radius: 0.5rem;
+  border: 1px solid #d9d8cc;
+  background: #f7f7f2;
+  padding: 0.35rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.icon-command {
+  display: inline-grid;
+  height: 2.75rem;
+  width: 2.75rem;
+  place-items: center;
+  border-radius: 999px;
+  border: 1px solid #d9d8cc;
+  background: #fff;
+}
+
+.bottom-command {
+  display: grid;
+  min-height: 3.5rem;
+  place-items: center;
+  gap: 0.15rem;
+  border-radius: 0.5rem;
+  color: #525252;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.bottom-command-active {
+  background: #f7f7f2;
+  color: #0f766e;
+}
