@@ -27,6 +27,13 @@ import {
   getStoredToken,
   setStoredToken,
 } from "./services/apiClient";
+import {
+  buildAppointmentTimeline,
+  buildValetTimeline,
+  getDetailRows,
+  serviceLabels,
+  statusLabels,
+} from "./appDetails";
 import { createRealtimeSocket } from "./services/realtime";
 
 const demoUsers = [
@@ -41,27 +48,6 @@ const roleLabels = {
   mechanic: "Usta",
   valet: "Vale",
   admin: "Admin",
-};
-
-const serviceLabels = {
-  repair: "Araç Tamir",
-  cleaning: "Temizlik",
-  inspection: "Muayene",
-};
-
-const statusLabels = {
-  pending: "Bekliyor",
-  approved: "Onaylandı",
-  in_progress: "İşlemde",
-  completed: "Tamamlandı",
-  cancelled: "İptal",
-  requested: "Talep",
-  assigned: "Atandı",
-  picking_up: "Alıma Gidiyor",
-  in_transit_to_service: "Servise Gidiyor",
-  at_service: "Serviste",
-  returning: "Dönüşte",
-  delivered: "Teslim",
 };
 
 const navByRole = {
@@ -702,8 +688,8 @@ function ValetOperations({ token, valetRequests, onChanged }) {
       <CardGrid>
         {valetRequests.map((transfer) => (
           <InfoCard key={transfer.id} title={`Transfer #${transfer.id}`} meta={statusLabels[transfer.status]}>
-            <p>{transfer.pickup_address}</p>
-            <p className="mt-1 text-sm text-neutral-500">{transfer.dropoff_address}</p>
+            <DetailRows rows={getDetailRows("valet", transfer)} />
+            <StatusTimeline steps={buildValetTimeline(transfer)} />
             <div className="mt-3 grid grid-cols-2 gap-2">
               {["picking_up", "in_transit_to_service", "returning", "delivered"].map((status) => (
                 <button
@@ -952,10 +938,37 @@ function AppointmentList({ appointments }) {
           title={`#${appointment.id} ${serviceLabels[appointment.service_type]}`}
           meta={statusLabels[appointment.status]}
         >
-          {appointment.service_address ?? "Adres yok"}
+          <DetailRows rows={getDetailRows("appointment", appointment)} />
+          <StatusTimeline steps={buildAppointmentTimeline(appointment)} />
         </InfoCard>
       ))}
     </CardGrid>
+  );
+}
+
+function DetailRows({ rows }) {
+  return (
+    <dl className="detail-grid">
+      {rows.map(([label, value]) => (
+        <div className="detail-row" key={label}>
+          <dt>{label}</dt>
+          <dd>{value}</dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
+function StatusTimeline({ steps }) {
+  return (
+    <ol className="status-timeline" aria-label="Durum zaman çizelgesi">
+      {steps.map((step) => (
+        <li className={`status-step status-step-${step.state}`} key={step.key}>
+          <span className="status-dot" />
+          <span>{step.label}</span>
+        </li>
+      ))}
+    </ol>
   );
 }
 
