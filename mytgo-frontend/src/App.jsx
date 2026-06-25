@@ -1,17 +1,25 @@
 import "leaflet/dist/leaflet.css";
 
 import {
+  Activity,
+  BarChart3,
+  BellRing,
   CalendarCheck,
   CarFront,
   Check,
+  Crown,
+  Gauge,
+  Layers3,
   LogOut,
   MapPin,
   Menu,
   MessageCircle,
   Play,
   Plus,
+  Route,
   Send,
   ShieldCheck,
+  Smartphone,
   Sparkles,
   Square,
   UserRound,
@@ -56,6 +64,20 @@ const roleLabels = {
   valet: "Vale",
   admin: "Admin",
 };
+
+const roleAccentLabels = {
+  customer: "Müşteri Deneyimi",
+  mechanic: "Servis Atölyesi",
+  valet: "Vale Operasyon",
+  admin: "Admin HQ",
+};
+
+const brandTokens = [
+  ["Violet", "#7c3aed"],
+  ["Cyan", "#0891b2"],
+  ["Rose", "#f43f5e"],
+  ["Neon", "#b6ff5c"],
+];
 
 const navByRole = {
   customer: [
@@ -283,10 +305,10 @@ function Dashboard({ token, user, onLogout }) {
   }, [token, user.role]);
 
   const totals = [
-    ["Araç", vehicles.length],
-    ["Randevu", appointments.length],
-    ["Vale", valetRequests.length],
-    ["Chat", conversations.length],
+    ["Araç", vehicles.length, CarFront, "from-violet-500 to-cyan-500"],
+    ["Randevu", appointments.length, CalendarCheck, "from-blue-500 to-violet-500"],
+    ["Vale", valetRequests.length, Route, "from-cyan-500 to-emerald-400"],
+    ["Chat", conversations.length, MessageCircle, "from-rose-500 to-orange-400"],
   ];
 
   const panels = {
@@ -368,10 +390,11 @@ function Dashboard({ token, user, onLogout }) {
         <div className="mt-8 rounded-3xl bg-white/14 p-4 text-white shadow-glow ring-1 ring-white/20">
           <p className="text-xs font-bold uppercase tracking-[0.22em] text-cyan-100">Canlı Operasyon</p>
           <p className="mt-2 text-2xl font-black">{roleLabels[user.role]} Paneli</p>
-          <p className="mt-1 text-sm text-white/75">Servis, vale ve chat tek ekranda.</p>
+          <p className="mt-1 text-sm text-white/75">{roleAccentLabels[user.role]} için mobil öncelikli kontrol.</p>
         </div>
 
         <nav className="mt-8 grid gap-2" aria-label="Ana menü">
+          <p className="px-2 text-xs font-black uppercase tracking-[0.22em] text-white/55">Sol Menü</p>
           {navByRole[user.role].map(([label, Icon]) => (
             <button
               key={label}
@@ -388,6 +411,19 @@ function Dashboard({ token, user, onLogout }) {
             </button>
           ))}
         </nav>
+
+        <div className="brand-system-card mt-3 text-white">
+          <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.18em] text-white/70">
+            <Gauge size={15} />
+            Marka Sistemi
+          </div>
+          <div className="mt-3 grid grid-cols-4 gap-2" aria-label="MYTGO renk sistemi">
+            {brandTokens.map(([name, color]) => (
+              <span className="brand-swatch" key={name} title={name} style={{ background: color }} />
+            ))}
+          </div>
+          <p className="mt-3 text-sm font-semibold text-white/82">Parlak CTA, yüksek kontrast ve tek elle erişilebilir akışlar.</p>
+        </div>
 
         <div className="mt-auto rounded-3xl border border-white/15 bg-white/10 p-4 text-white">
           <p className="text-sm font-bold">{user.full_name}</p>
@@ -407,17 +443,22 @@ function Dashboard({ token, user, onLogout }) {
         <header className="hero-card overflow-hidden rounded-[2rem] p-5 text-white shadow-glow sm:p-7">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <button
-                aria-label="Menüyü aç"
-                className="mb-4 inline-grid h-11 w-11 place-items-center rounded-2xl bg-white/16 text-white ring-1 ring-white/25 lg:hidden"
-                type="button"
-                onClick={() => setSidebarOpen(true)}
-              >
-                <Menu size={22} />
-              </button>
+              <div className="mobile-topbar mb-4 lg:hidden">
+                <button
+                  aria-label="Menüyü aç"
+                  className="inline-grid h-11 w-11 place-items-center rounded-2xl bg-white/16 text-white ring-1 ring-white/25"
+                  type="button"
+                  onClick={() => setSidebarOpen(true)}
+                >
+                  <Menu size={22} />
+                </button>
+                <span className="rounded-full bg-white/16 px-3 py-2 text-xs font-black uppercase tracking-[0.16em] ring-1 ring-white/20">
+                  Mobil Panel
+                </span>
+              </div>
               <p className="text-xs font-bold uppercase tracking-[0.24em] text-cyan-100">MYTGO kontrol merkezi</p>
               <h1 className="mt-2 max-w-2xl text-3xl font-black leading-tight sm:text-4xl">
-                Parlak, hızlı ve canlı araç servis yönetimi
+                Parlak marka sistemiyle servis, vale ve chat tek akışta
               </h1>
               <p className="mt-3 max-w-2xl text-sm text-white/78 sm:text-base">
                 {roleLabels[user.role]} akışı için randevu, vale takibi ve mesajlaşma modern tek panelde.
@@ -428,11 +469,32 @@ function Dashboard({ token, user, onLogout }) {
             </div>
           </div>
 
+          <div className="mt-6 grid gap-3 md:grid-cols-3">
+            {[
+              [Crown, "Premium marka", "Gradient kimlik + neon vurgu"],
+              [Smartphone, "Mobil öncelik", "Sidebar drawer ve büyük dokunma alanı"],
+              [BellRing, "Canlı aksiyon", "Teklif, vale ve chat hızlı komutları"],
+            ].map(([Icon, title, copy]) => (
+              <div className="brand-promise-card" key={title}>
+                <Icon size={20} />
+                <div>
+                  <p className="font-black">{title}</p>
+                  <p className="text-xs text-white/70">{copy}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
           <div className="mt-6 grid gap-3 sm:grid-cols-4">
-            {totals.map(([label, value]) => (
-              <div className="rounded-2xl bg-white/14 px-4 py-3 ring-1 ring-white/18" key={label}>
-                <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/65">{label}</p>
-                <p className="mt-1 text-2xl font-black">{value}</p>
+            {totals.map(([label, value, Icon, accent]) => (
+              <div className="stat-card" key={label}>
+                <span className={`stat-icon bg-gradient-to-br ${accent}`}>
+                  <Icon size={18} />
+                </span>
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/65">{label}</p>
+                  <p className="mt-1 text-2xl font-black">{value}</p>
+                </div>
               </div>
             ))}
           </div>
@@ -1022,6 +1084,20 @@ function AdminPanel({ token, appointments, valetRequests, users, vehicles }) {
 
   return (
     <Panel title="Admin" icon={ShieldCheck}>
+      <div className="admin-command-bar" aria-label="Admin hızlı görünüm">
+        <span>
+          <Layers3 size={18} />
+          Operasyon görünümü
+        </span>
+        <span>
+          <BarChart3 size={18} />
+          Raporlar
+        </span>
+        <span>
+          <Activity size={18} />
+          Canlı kapasite
+        </span>
+      </div>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {stats.map(([label, value]) => (
           <div className="rounded-lg border border-mytgo-line bg-white p-4" key={label}>

@@ -3,6 +3,11 @@
 @tailwind utilities;
 
 :root {
+  --mytgo-violet: #7c3aed;
+  --mytgo-cyan: #0891b2;
+  --mytgo-rose: #f43f5e;
+  --mytgo-neon: #b6ff5c;
+  --mytgo-ink: #101828;
   color-scheme: light;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -51,6 +56,7 @@ select:focus {
 .auth-shell,
 .app-shell {
   background:
+    radial-gradient(circle at 12% 8%, rgba(182, 255, 92, 0.28), transparent 24rem),
     radial-gradient(circle at top left, rgba(244, 63, 94, 0.22), transparent 30rem),
     radial-gradient(circle at top right, rgba(8, 145, 178, 0.25), transparent 28rem),
     linear-gradient(135deg, #fff7ed 0%, #f8fafc 44%, #f5f3ff 100%);
@@ -74,7 +80,7 @@ select:focus {
 .hero-card,
 .sidebar,
 .logo-mark {
-  background: linear-gradient(135deg, #7c3aed 0%, #0891b2 45%, #f43f5e 100%);
+  background: linear-gradient(135deg, var(--mytgo-violet) 0%, var(--mytgo-cyan) 45%, var(--mytgo-rose) 100%);
 }
 
 .hero-card {
@@ -90,6 +96,57 @@ select:focus {
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.18);
   content: "";
+}
+
+.mobile-topbar,
+.brand-promise-card,
+.stat-card,
+.admin-command-bar,
+.admin-command-bar span {
+  display: flex;
+  align-items: center;
+}
+
+.mobile-topbar {
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.brand-promise-card,
+.stat-card {
+  position: relative;
+  z-index: 1;
+  gap: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.14);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(12px);
+}
+
+.brand-promise-card {
+  border-radius: 1.35rem;
+  padding: 0.85rem;
+}
+
+.brand-promise-card svg {
+  color: var(--mytgo-neon);
+  filter: drop-shadow(0 0 12px rgba(182, 255, 92, 0.42));
+}
+
+.stat-card {
+  border-radius: 1.25rem;
+  padding: 0.75rem;
+}
+
+.stat-icon {
+  display: inline-grid;
+  height: 2.5rem;
+  width: 2.5rem;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 1rem;
+  color: #fff;
+  box-shadow: 0 14px 26px rgba(15, 23, 42, 0.18);
 }
 
 .sidebar {
@@ -135,6 +192,19 @@ select:focus {
   transform: translateX(0.25rem);
   background: rgba(255, 255, 255, 0.2);
   color: #fff;
+}
+
+.brand-system-card {
+  border-radius: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(15, 23, 42, 0.18);
+  padding: 0.9rem;
+}
+
+.brand-swatch {
+  min-height: 0.65rem;
+  border-radius: 999px;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.24), 0 10px 22px rgba(15, 23, 42, 0.2);
 }
 
 .logo-mark {
@@ -339,6 +409,30 @@ select:focus {
   border-radius: 999px;
   border: 1px solid #e9d5ff;
   background: #fff;
+}
+
+.admin-command-bar {
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  border-radius: 1.35rem;
+  border: 1px solid rgba(124, 58, 237, 0.16);
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.08), rgba(8, 145, 178, 0.08), rgba(244, 63, 94, 0.08));
+  padding: 0.75rem;
+}
+
+.admin-command-bar span {
+  gap: 0.45rem;
+  border-radius: 999px;
+  background: #fff;
+  padding: 0.55rem 0.75rem;
+  color: #334155;
+  font-size: 0.82rem;
+  font-weight: 900;
+  box-shadow: 0 10px 22px rgba(88, 28, 135, 0.08);
+}
+
+.admin-command-bar svg {
+  color: var(--mytgo-violet);
 }
 
 .admin-report {
