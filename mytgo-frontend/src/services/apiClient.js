@@ -36,7 +36,9 @@ export async function apiRequest(path, options = {}) {
     } catch {
       // Keep the generic failure when the backend did not return JSON.
     }
-    throw new Error(detail);
+    const error = new Error(detail);
+    error.status = response.status;
+    throw error;
   }
 
   return response.status === 204 ? null : response.json();

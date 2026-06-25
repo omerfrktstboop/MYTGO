@@ -28,6 +28,11 @@ import {
   setStoredToken,
 } from "./services/apiClient";
 import {
+  AdminReportPanel,
+  fetchAdminReportOverview,
+  getAdminReportErrorMessage,
+} from "./adminReport";
+import {
   buildAppointmentTimeline,
   buildValetTimeline,
   formatCurrencyFromCents,
@@ -35,6 +40,7 @@ import {
   serviceLabels,
   statusLabels,
 } from "./appDetails";
+import { ServiceHistoryLoader } from "./serviceHistory";
 import { createRealtimeSocket } from "./services/realtime";
 
 const demoUsers = [
@@ -326,6 +332,7 @@ function Dashboard({ token, user, onLogout }) {
     Takip: <ValetSimulator token={token} valetRequests={valetRequests} />,
     Panel: (
       <AdminPanel
+        token={token}
         appointments={appointments}
         valetRequests={valetRequests}
         users={users}
@@ -501,6 +508,7 @@ function CustomerVehicles({ token, vehicles, onChanged }) {
         {vehicles.map((vehicle) => (
           <InfoCard key={vehicle.id} title={vehicle.plate_number} meta={`${vehicle.brand} ${vehicle.model}`}>
             {vehicle.year ?? "Yıl belirtilmedi"}
+            <ServiceHistoryLoader apiRequest={apiRequest} token={token} vehicle={vehicle} />
           </InfoCard>
         ))}
       </CardGrid>
@@ -968,7 +976,43 @@ function ChatPanel({ token, user, conversations }) {
   );
 }
 
-function AdminPanel({ appointments, valetRequests, users, vehicles }) {
+function getDefaultAdminReportFilters() {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), now.getMonth(), 1);
+  return {
+    from: start.toISOString().slice(0, 10),
+    to: now.toISOString().slice(0, 10),
+    timezone: "Europe/Istanbul",
+  };
+}
+
+function AdminPanel({ token, appointments, valetRequests, users, vehicles }) {
+  const [report, setReport] = useState(null);
+  const [reportStatus, setReportStatus] = useState("loading");
+  const [reportError, setReportError] = useState(null);
+  const [reportFilters, setReportFilters] = useState(getDefaultAdminReportFilters);
+
+  async function loadReport() {
+    setReportStatus("loading");
+    setReportError(null);
+    try {
+      const data = await fetchAdminReportOverview({
+        apiRequest,
+        token,
+        ...reportFilters,
+      });
+      setReport(data);
+      setReportStatus("success");
+    } catch (err) {
+      setReportError(err);
+      setReportStatus("error");
+    }
+  }
+
+  useEffect(() => {
+    loadReport();
+  }, [token]);
+
   const stats = [
     ["Kullanıcı", users.length],
     ["Araç", vehicles.length],
@@ -986,6 +1030,14 @@ function AdminPanel({ appointments, valetRequests, users, vehicles }) {
           </div>
         ))}
       </div>
+      <AdminReportPanel
+        error={reportError ? { ...reportError, message: getAdminReportErrorMessage(reportError) } : null}
+        filters={reportFilters}
+        report={report}
+        status={reportStatus}
+        onFiltersChange={(name, value) => setReportFilters((current) => ({ ...current, [name]: value }))}
+        onSubmit={loadReport}
+      />
       <AppointmentList appointments={appointments} />
     </Panel>
   );

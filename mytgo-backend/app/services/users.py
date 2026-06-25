@@ -18,14 +18,20 @@ async def get_user_by_email(db: AsyncSession, email: str) -> User | None:
 
 async def get_first_mechanic(db: AsyncSession) -> User | None:
     result = await db.execute(
-        select(User).where(User.role == UserRole.MECHANIC, User.is_active.is_(True)).limit(1)
+        select(User)
+        .where(User.role == UserRole.MECHANIC, User.is_active.is_(True))
+        .order_by(User.id.desc())
+        .limit(1)
     )
     return result.scalar_one_or_none()
 
 
 async def get_first_valet(db: AsyncSession) -> User | None:
     result = await db.execute(
-        select(User).where(User.role == UserRole.VALET, User.is_active.is_(True)).limit(1)
+        select(User)
+        .where(User.role == UserRole.VALET, User.is_active.is_(True))
+        .order_by(User.id.desc())
+        .limit(1)
     )
     return result.scalar_one_or_none()
 

@@ -32,3 +32,12 @@ class ValetStatus(str, Enum):
     RETURNING = "returning"
     DELIVERED = "delivered"
     CANCELLED = "cancelled"
+
+
+class ServiceHistoryOperationType(str, Enum):
+    MAINTENANCE = "maintenance"
+    REPAIR = "repair"
+    INSPECTION = "inspection"
+    CLEANING = "cleaning"
+    TIRE = "tire"
+    OTHER = "other"

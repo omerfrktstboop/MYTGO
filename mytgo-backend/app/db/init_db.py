@@ -2,7 +2,7 @@ from sqlalchemy import text
 
 from app.db.base import Base
 from app.db.session import engine
-from app.models import appointment, chat, user, valet, vehicle  # noqa: F401
+from app.models import appointment, chat, service_history, user, valet, vehicle  # noqa: F401
 
 
 async def init_db() -> None:
