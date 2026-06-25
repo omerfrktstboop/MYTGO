@@ -71,12 +71,24 @@ def test_mytgo_mvp_http_and_websocket_flow():
         appointment = appointment_response.json()
         assert appointment["mechanic_id"] == mechanic["user"]["id"]
 
-        approved_response = client.patch(
+        quote_response = client.patch(
             f"/api/v1/appointments/{appointment['id']}",
             headers=auth_headers(mechanic["access_token"]),
+            json={"quote_amount_cents": 185000, "quote_notes": "Balata + işçilik"},
+        )
+        assert quote_response.status_code == 200, quote_response.text
+        quote = quote_response.json()
+        assert quote["status"] == "quote_sent"
+        assert quote["quote_amount_cents"] == 185000
+        assert quote["quote_notes"] == "Balata + işçilik"
+
+        approved_response = client.patch(
+            f"/api/v1/appointments/{appointment['id']}",
+            headers=auth_headers(customer["access_token"]),
             json={"status": "approved"},
         )
         assert approved_response.status_code == 200, approved_response.text
+        assert approved_response.json()["status"] == "approved"
 
         conversations_response = client.get(
             "/api/v1/conversations",

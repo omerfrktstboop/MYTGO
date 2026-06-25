@@ -16,6 +16,7 @@ class ServiceType(str, Enum):
 
 class AppointmentStatus(str, Enum):
     PENDING = "pending"
+    QUOTE_SENT = "quote_sent"
     APPROVED = "approved"
     IN_PROGRESS = "in_progress"
     COMPLETED = "completed"

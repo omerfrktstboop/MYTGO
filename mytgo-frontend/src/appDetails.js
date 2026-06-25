@@ -6,6 +6,7 @@ export const serviceLabels = {
 
 export const statusLabels = {
   pending: "Bekliyor",
+  quote_sent: "Teklif Gönderildi",
   approved: "Onaylandı",
   in_progress: "İşlemde",
   completed: "Tamamlandı",
@@ -19,7 +20,7 @@ export const statusLabels = {
   delivered: "Teslim",
 };
 
-const appointmentSteps = ["pending", "approved", "in_progress", "completed"];
+const appointmentSteps = ["pending", "quote_sent", "approved", "in_progress", "completed"];
 const valetSteps = [
   "requested",
   "assigned",
@@ -47,6 +48,17 @@ export function buildValetTimeline(transfer) {
   return buildTimeline(valetSteps, transfer?.status);
 }
 
+export function formatCurrencyFromCents(value) {
+  if (value === null || value === undefined) {
+    return "Teklif bekleniyor";
+  }
+  return new Intl.NumberFormat("tr-TR", {
+    style: "currency",
+    currency: "TRY",
+    maximumFractionDigits: 0,
+  }).format(Number(value) / 100);
+}
+
 function formatDateTime(value) {
   if (!value) {
     return "Henüz planlanmadı";
@@ -68,6 +80,8 @@ export function getDetailRows(type, record) {
       ["Araç", record.vehicle_id ? `#${record.vehicle_id}` : "Araç yok"],
       ["Usta", record.mechanic_id ? `#${record.mechanic_id}` : "Atama bekliyor"],
       ["Not", record.notes || "Not yok"],
+      ["Teklif", formatCurrencyFromCents(record.quote_amount_cents)],
+      ["Teklif Notu", record.quote_notes || "Teklif notu yok"],
     ];
   }
 

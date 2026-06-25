@@ -30,6 +30,7 @@ import {
 import {
   buildAppointmentTimeline,
   buildValetTimeline,
+  formatCurrencyFromCents,
   getDetailRows,
   serviceLabels,
   statusLabels,
@@ -302,7 +303,7 @@ function Dashboard({ token, user, onLogout }) {
           token={token}
           vehicles={vehicles}
           appointments={appointments}
-          onChanged={() => refreshWithNotice(refresh, setNotice, "Randevu oluşturuldu")}
+          onChanged={(message = "Randevu oluşturuldu") => refreshWithNotice(refresh, setNotice, message)}
         />
       ),
     Vale: (
@@ -526,6 +527,15 @@ function CustomerAppointments({ token, vehicles, appointments, onChanged }) {
     onChanged();
   }
 
+  async function approveQuote(id) {
+    await apiRequest(`/api/v1/appointments/${id}`, {
+      method: "PATCH",
+      token,
+      body: { status: "approved" },
+    });
+    onChanged("Teklif onaylandı");
+  }
+
   return (
     <Panel title="Randevular" icon={CalendarCheck}>
       <form className="grid gap-3 sm:grid-cols-2" onSubmit={submit}>
@@ -569,12 +579,14 @@ function CustomerAppointments({ token, vehicles, appointments, onChanged }) {
           Randevu Oluştur
         </button>
       </form>
-      <AppointmentList appointments={appointments} />
+      <AppointmentList appointments={appointments} onApproveQuote={approveQuote} />
     </Panel>
   );
 }
 
 function MechanicAppointments({ token, appointments, onChanged }) {
+  const [quoteForms, setQuoteForms] = useState({});
+
   async function patch(id, status) {
     await apiRequest(`/api/v1/appointments/${id}`, {
       method: "PATCH",
@@ -582,6 +594,31 @@ function MechanicAppointments({ token, appointments, onChanged }) {
       body: { status },
     });
     onChanged();
+  }
+
+  async function sendQuote(event, id) {
+    event.preventDefault();
+    const form = quoteForms[id] ?? { amount: "", notes: "" };
+    await apiRequest(`/api/v1/appointments/${id}`, {
+      method: "PATCH",
+      token,
+      body: {
+        quote_amount_cents: Math.round(Number(form.amount) * 100),
+        quote_notes: form.notes || null,
+      },
+    });
+    setQuoteForms((current) => ({ ...current, [id]: { amount: "", notes: "" } }));
+    onChanged();
+  }
+
+  function updateQuoteForm(id, key, value) {
+    setQuoteForms((current) => ({
+      ...current,
+      [id]: {
+        ...(current[id] ?? {}),
+        [key]: value,
+      },
+    }));
   }
 
   return (
@@ -593,6 +630,31 @@ function MechanicAppointments({ token, appointments, onChanged }) {
             title={serviceLabels[appointment.service_type]}
             meta={statusLabels[appointment.status]}
           >
+            <DetailRows rows={getDetailRows("appointment", appointment)} />
+            <StatusTimeline steps={buildAppointmentTimeline(appointment)} />
+            <form className="quote-form" onSubmit={(event) => sendQuote(event, appointment.id)}>
+              <Field label="Teklif (₺)">
+                <input
+                  min="0"
+                  step="1"
+                  type="number"
+                  value={quoteForms[appointment.id]?.amount ?? ""}
+                  onChange={(event) => updateQuoteForm(appointment.id, "amount", event.target.value)}
+                  required
+                />
+              </Field>
+              <Field label="Teklif notu">
+                <input
+                  value={quoteForms[appointment.id]?.notes ?? ""}
+                  onChange={(event) => updateQuoteForm(appointment.id, "notes", event.target.value)}
+                  placeholder="Parça + işçilik dahil"
+                />
+              </Field>
+              <button className="command command-primary" type="submit">
+                <Send size={18} />
+                Teklif Gönder
+              </button>
+            </form>
             <div className="mt-3 grid grid-cols-3 gap-2">
               {["approved", "in_progress", "completed"].map((status) => (
                 <button
@@ -929,7 +991,7 @@ function AdminPanel({ appointments, valetRequests, users, vehicles }) {
   );
 }
 
-function AppointmentList({ appointments }) {
+function AppointmentList({ appointments, onApproveQuote }) {
   return (
     <CardGrid>
       {appointments.map((appointment) => (
@@ -940,6 +1002,27 @@ function AppointmentList({ appointments }) {
         >
           <DetailRows rows={getDetailRows("appointment", appointment)} />
           <StatusTimeline steps={buildAppointmentTimeline(appointment)} />
+          {appointment.quote_amount_cents ? (
+            <div className="quote-box">
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-mytgo-teal">Usta Teklifi</p>
+              <p className="mt-1 text-2xl font-black text-mytgo-ink">
+                {formatCurrencyFromCents(appointment.quote_amount_cents)}
+              </p>
+              {appointment.quote_notes && <p className="mt-1 text-sm text-neutral-600">{appointment.quote_notes}</p>}
+              {appointment.status === "quote_sent" && onApproveQuote && (
+                <button
+                  className="command command-primary mt-3 w-full"
+                  type="button"
+                  onClick={() => onApproveQuote(appointment.id)}
+                >
+                  <Check size={18} />
+                  Teklifi Onayla
+                </button>
+              )}
+            </div>
+          ) : (
+            <p className="quote-empty">Usta fiyat teklifi bekleniyor.</p>
+          )}
         </InfoCard>
       ))}
     </CardGrid>

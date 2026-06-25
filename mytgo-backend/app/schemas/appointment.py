@@ -12,6 +12,8 @@ class AppointmentCreate(ORMModel):
     scheduled_at: datetime | None = None
     service_address: str | None = Field(default=None, max_length=255)
     notes: str | None = None
+    quote_amount_cents: int | None = Field(default=None, ge=0)
+    quote_notes: str | None = None
 
 
 class AppointmentUpdate(ORMModel):
@@ -20,6 +22,8 @@ class AppointmentUpdate(ORMModel):
     scheduled_at: datetime | None = None
     service_address: str | None = Field(default=None, max_length=255)
     notes: str | None = None
+    quote_amount_cents: int | None = Field(default=None, ge=0)
+    quote_notes: str | None = None
 
 
 class AppointmentRead(ORMModel):
@@ -32,3 +36,5 @@ class AppointmentRead(ORMModel):
     scheduled_at: datetime | None = None
     service_address: str | None = None
     notes: str | None = None
+    quote_amount_cents: int | None = None
+    quote_notes: str | None = None

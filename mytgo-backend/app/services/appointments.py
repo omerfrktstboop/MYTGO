@@ -77,15 +77,32 @@ async def update_appointment(
             detail="Appointment access denied",
         )
 
-    if user.role == UserRole.CUSTOMER and payload.status not in (None, AppointmentStatus.CANCELLED):
+    if user.role == UserRole.CUSTOMER:
+        allowed_customer_statuses = {None, AppointmentStatus.CANCELLED}
+        if appointment.status == AppointmentStatus.QUOTE_SENT:
+            allowed_customer_statuses.add(AppointmentStatus.APPROVED)
+        if payload.status not in allowed_customer_statuses:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Customers can only cancel or approve submitted quotes",
+            )
+        if payload.quote_amount_cents is not None or payload.quote_notes is not None:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Customers cannot change quote details",
+            )
+
+    if user.role == UserRole.MECHANIC and appointment.mechanic_id not in (None, user.id):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Customers can only cancel appointments",
+            detail="Appointment assigned to another mechanic",
         )
 
     update_data = payload.model_dump(exclude_unset=True)
-    if user.role == UserRole.MECHANIC and payload.status == AppointmentStatus.APPROVED:
+    if user.role == UserRole.MECHANIC:
         update_data.setdefault("mechanic_id", user.id)
+        if payload.quote_amount_cents is not None and payload.status is None:
+            update_data["status"] = AppointmentStatus.QUOTE_SENT
 
     for key, value in update_data.items():
         setattr(appointment, key, value)

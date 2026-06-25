@@ -257,6 +257,27 @@ select:focus {
   box-shadow: 0 0 0 4px rgba(244, 63, 94, 0.2);
 }
 
+.quote-form,
+.quote-box,
+.quote-empty {
+  margin-top: 1rem;
+  border-radius: 1.25rem;
+  border: 1px solid rgba(124, 58, 237, 0.18);
+  background: linear-gradient(135deg, rgba(255, 247, 237, 0.96), rgba(236, 253, 245, 0.9));
+  padding: 0.9rem;
+}
+
+.quote-form {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.quote-empty {
+  color: #64748b;
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
 .icon-command {
   display: inline-grid;
   height: 2.75rem;

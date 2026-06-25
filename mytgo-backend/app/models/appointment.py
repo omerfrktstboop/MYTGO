@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from sqlalchemy import Enum as SAEnum, ForeignKey, String, Text
+from sqlalchemy import Enum as SAEnum, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base, TimestampMixin
@@ -28,3 +28,5 @@ class Appointment(Base, TimestampMixin):
     scheduled_at: Mapped[datetime | None]
     service_address: Mapped[str | None] = mapped_column(String(255))
     notes: Mapped[str | None] = mapped_column(Text)
+    quote_amount_cents: Mapped[int | None] = mapped_column(Integer)
+    quote_notes: Mapped[str | None] = mapped_column(Text)
