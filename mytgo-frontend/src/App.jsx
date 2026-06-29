@@ -75,10 +75,10 @@ const roleAccentLabels = {
 };
 
 const brandTokens = [
-  ["Carbon", "#0f0f0f"],
-  ["Graphite", "#262626"],
-  ["Silver", "#a3a3a3"],
-  ["Moss", "#5b7f66"],
+  ["Red", "#dc2626"],
+  ["Deep Red", "#991b1b"],
+  ["White", "#ffffff"],
+  ["Ink", "#111827"],
 ];
 
 const panelDescriptions = {
@@ -122,7 +122,7 @@ function App() {
   const storedTheme = typeof window !== "undefined" ? window.localStorage.getItem("mytgo-theme") : null;
   const prefersDark =
     typeof window !== "undefined" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-  const [theme, setTheme] = useState(storedTheme ?? "dark");
+  const [theme, setTheme] = useState(storedTheme ?? "light");
   const [token, setToken] = useState(getStoredToken());
   const [user, setUser] = useState(null);
   const [authMode, setAuthMode] = useState("login");
@@ -490,7 +490,7 @@ function Dashboard({ token, user, onLogout, theme, onThemeToggle }) {
               <Icon size={20} />
               <span>{label}</span>
               {label === "Bildirimler" && unreadNotificationCount > 0 && (
-                <span className="ml-auto rounded-full bg-lime-300 px-2 py-0.5 text-[11px] font-black text-mytgo-ink">
+                <span className="ml-auto rounded-full bg-red-600 px-2 py-0.5 text-[11px] font-black text-white">
                   {unreadNotificationCount}
                 </span>
               )}
@@ -652,7 +652,7 @@ function Dashboard({ token, user, onLogout, theme, onThemeToggle }) {
         {(notice || error) && (
           <p
             className={`mt-4 rounded-lg px-3 py-2 text-sm ${
-              error ? "bg-red-50 text-red-700" : "bg-emerald-50 text-emerald-800"
+              error ? "bg-red-50 text-red-700" : "bg-white text-red-700 ring-1 ring-red-100"
             }`}
           >
             {error || notice}
@@ -1110,10 +1110,10 @@ function TrackingMap({ token, transfers, role }) {
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
-          <CircleMarker center={position} radius={10} pathOptions={{ color: "#0f766e" }}>
+          <CircleMarker center={position} radius={10} pathOptions={{ color: "#dc2626" }}>
             <Popup>MYTGO Vale</Popup>
           </CircleMarker>
-          <Polyline positions={trail} pathOptions={{ color: "#d97706", weight: 4 }} />
+          <Polyline positions={trail} pathOptions={{ color: "#991b1b", weight: 4 }} />
         </MapContainer>
       </div>
     </div>
@@ -1234,7 +1234,7 @@ function NotificationCenter({ token, notifications, onChanged }) {
             <p className="text-xs font-black uppercase tracking-[0.18em] text-mytgo-teal">Canlı olay akışı</p>
             <p className="mt-1 text-sm text-mytgo-muted">Servis, vale ve chat olayları burada görünür.</p>
           </div>
-          <span className="rounded-full bg-lime-300 px-3 py-1 text-xs font-black text-mytgo-ink">
+          <span className="rounded-full bg-red-600 px-3 py-1 text-xs font-black text-white">
             {unreadCount} okunmamış
           </span>
         </div>
@@ -1250,12 +1250,12 @@ function NotificationCenter({ token, notifications, onChanged }) {
             <article
               key={notification.id}
               className={`rounded-3xl border p-4 shadow-sm transition ${
-                notification.read_at ? "border-mytgo-line bg-white" : "border-lime-200 bg-lime-50/70"
+                notification.read_at ? "border-mytgo-line bg-white" : "border-red-200 bg-red-50/80"
               }`}
             >
               <div className="flex items-start gap-3">
                 <span
-                  className={`mt-1 h-3 w-3 rounded-full ${notification.read_at ? "bg-mytgo-line" : "bg-lime-400"}`}
+                  className={`mt-1 h-3 w-3 rounded-full ${notification.read_at ? "bg-mytgo-line" : "bg-red-600"}`}
                 />
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-start justify-between gap-2">
@@ -1274,7 +1274,7 @@ function NotificationCenter({ token, notifications, onChanged }) {
                         Okundu işaretle
                       </button>
                     ) : (
-                      <span className="rounded-full bg-emerald-100 px-3 py-1 text-[11px] font-black uppercase tracking-[0.16em] text-emerald-700">
+                      <span className="rounded-full bg-white px-3 py-1 text-[11px] font-black uppercase tracking-[0.16em] text-red-700 ring-1 ring-red-100">
                         Okundu
                       </span>
                     )}
@@ -1457,7 +1457,7 @@ function BrandLogo({ compact = false }) {
       {!compact && (
         <span>
           <span className="block text-2xl font-black tracking-tight text-white">MYTGO</span>
-          <span className="block text-xs font-bold uppercase tracking-[0.24em] text-cyan-100">
+          <span className="block text-xs font-bold uppercase tracking-[0.24em] text-red-100">
             Mobil oto servis
           </span>
         </span>
@@ -1555,7 +1555,7 @@ function InfoCard({ title, meta, description, icon: Icon = Sparkles, children })
           <h3 className="font-black leading-tight">{title}</h3>
           {description && <p className="mt-1 text-xs font-semibold text-mytgo-muted">{description}</p>}
         </div>
-        <span className="rounded-full bg-orange-100 px-2.5 py-1 text-xs font-black text-orange-700">
+        <span className="rounded-full bg-red-50 px-2.5 py-1 text-xs font-black text-red-700 ring-1 ring-red-100">
           {meta}
         </span>
       </div>

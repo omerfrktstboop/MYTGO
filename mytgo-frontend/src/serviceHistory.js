@@ -117,7 +117,7 @@ function ServiceHistoryCard({ entry }) {
         React.createElement("p", { className: "text-xs font-black uppercase tracking-[0.18em] text-mytgo-teal" }, formatDate(entry.service_date)),
         React.createElement("h4", { className: "mt-1 font-black text-mytgo-ink" }, operationLabels[entry.operation_type] ?? entry.operation_type ?? "Servis"),
       ),
-      React.createElement("span", { className: "rounded-full bg-cyan-100 px-2.5 py-1 text-xs font-black text-cyan-800" }, formatKilometers(entry.odometer_km)),
+      React.createElement("span", { className: "rounded-full bg-red-50 px-2.5 py-1 text-xs font-black text-red-700 ring-1 ring-red-100" }, formatKilometers(entry.odometer_km)),
     ),
     React.createElement(
       "dl",

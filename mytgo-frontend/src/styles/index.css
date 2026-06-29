@@ -3,21 +3,21 @@
 @tailwind utilities;
 
 :root {
-  --mytgo-violet: #6d28d9;
-  --mytgo-cyan: #0f766e;
-  --mytgo-rose: #be123c;
-  --mytgo-neon: #5b7f66;
-  --mytgo-ink: #101828;
-  --mytgo-ink-rgb: 16 24 40;
+  --mytgo-violet: #dc2626;
+  --mytgo-cyan: #b91c1c;
+  --mytgo-rose: #dc2626;
+  --mytgo-neon: #ef4444;
+  --mytgo-ink: #111827;
+  --mytgo-ink-rgb: 17 24 39;
   --mytgo-muted-rgb: 100 116 139;
-  --mytgo-panel-rgb: 248 251 255;
-  --mytgo-line-rgb: 216 226 240;
-  --mytgo-lime-rgb: 91 127 102;
-  --mytgo-teal-rgb: 13 148 136;
-  --mytgo-amber-rgb: 180 83 9;
-  --mytgo-blue-rgb: 59 130 246;
-  --mytgo-violet-rgb: 109 40 217;
-  --mytgo-pink-rgb: 190 24 93;
+  --mytgo-panel-rgb: 255 255 255;
+  --mytgo-line-rgb: 254 202 202;
+  --mytgo-lime-rgb: 220 38 38;
+  --mytgo-teal-rgb: 220 38 38;
+  --mytgo-amber-rgb: 153 27 27;
+  --mytgo-blue-rgb: 127 29 29;
+  --mytgo-violet-rgb: 185 28 28;
+  --mytgo-pink-rgb: 220 38 38;
   color-scheme: light;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -33,7 +33,8 @@ body,
 
 body {
   margin: 0;
-  background: #f8fafc;
+  background: #fff7f7;
+  font-family: Inter, "SF Pro Display", "Segoe UI", Roboto, Arial, sans-serif;
   transition: background-color 220ms ease, color 220ms ease;
 }
 
@@ -60,8 +61,8 @@ select {
 input:focus,
 textarea:focus,
 select:focus {
-  border-color: #7c3aed;
-  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.16);
+  border-color: #dc2626;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.16);
 }
 
 .auth-shell,
@@ -615,7 +616,7 @@ select:focus {
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, #ffffff, #00e676);
+  background: linear-gradient(90deg, #ef4444, #991b1b);
 }
 
 .active-role-grid {
@@ -632,7 +633,7 @@ select:focus {
 }
 
 .active-role-pill strong {
-  color: #5b7f66;
+  color: #dc2626;
   font-size: 1.2rem;
 }
 
@@ -877,8 +878,8 @@ select:focus {
   flex: 0 0 auto;
   place-items: center;
   border-radius: 1rem;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.06), rgba(91, 127, 102, 0.10));
-  color: #5b7f66;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.06), rgba(220, 38, 38, 0.10));
+  color: #dc2626;
 }
 
 .auth-card {
@@ -1043,7 +1044,7 @@ select:focus {
 }
 
 :root[data-theme="light"] .report-distribution-bar span {
-  background: linear-gradient(90deg, #334155, #5b7f66);
+  background: linear-gradient(90deg, #ef4444, #991b1b);
 }
 
 :root[data-theme="light"] .sidebar-quick-panel,
@@ -1066,4 +1067,312 @@ select:focus {
 :root[data-theme="light"] .quote-box,
 :root[data-theme="light"] .quote-empty {
   box-shadow: 0 16px 40px rgba(15, 23, 42, 0.06);
+}
+
+/* MYTGO red-white design refresh */
+:root,
+:root[data-theme="light"] {
+  --mytgo-ink-rgb: 17 24 39;
+  --mytgo-muted-rgb: 100 116 139;
+  --mytgo-panel-rgb: 255 255 255;
+  --mytgo-line-rgb: 254 202 202;
+  --mytgo-lime-rgb: 220 38 38;
+  --mytgo-teal-rgb: 220 38 38;
+  --mytgo-amber-rgb: 153 27 27;
+  --mytgo-blue-rgb: 127 29 29;
+  --mytgo-violet-rgb: 185 28 28;
+  --mytgo-pink-rgb: 220 38 38;
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --mytgo-ink-rgb: 255 255 255;
+  --mytgo-muted-rgb: 226 232 240;
+  --mytgo-panel-rgb: 24 24 27;
+  --mytgo-line-rgb: 127 29 29;
+  --mytgo-lime-rgb: 248 113 113;
+  --mytgo-teal-rgb: 248 113 113;
+  --mytgo-amber-rgb: 252 165 165;
+  --mytgo-blue-rgb: 254 202 202;
+  --mytgo-violet-rgb: 248 113 113;
+  --mytgo-pink-rgb: 248 113 113;
+}
+
+body,
+:root[data-theme="light"] body {
+  background: #fff7f7;
+  color: #111827;
+}
+
+:root[data-theme="dark"] body {
+  background: #120707;
+}
+
+.auth-shell,
+.app-shell,
+:root[data-theme="light"] .auth-shell,
+:root[data-theme="light"] .app-shell {
+  background:
+    linear-gradient(rgba(220, 38, 38, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(220, 38, 38, 0.045) 1px, transparent 1px),
+    linear-gradient(180deg, #ffffff 0%, #fff7f7 52%, #fee2e2 100%);
+  background-size: 32px 32px, 32px 32px, auto;
+}
+
+:root[data-theme="dark"] .auth-shell,
+:root[data-theme="dark"] .app-shell {
+  background:
+    linear-gradient(rgba(248, 113, 113, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(248, 113, 113, 0.08) 1px, transparent 1px),
+    linear-gradient(180deg, #170707 0%, #220909 54%, #111827 100%);
+  background-size: 34px 34px, 34px 34px, auto;
+}
+
+.dashboard-surface::before,
+.hero-card::after {
+  display: none;
+}
+
+.hero-card,
+.sidebar,
+.logo-mark,
+:root[data-theme="dark"] .hero-card,
+:root[data-theme="dark"] .sidebar,
+:root[data-theme="dark"] .logo-mark {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 52%, #111827 100%);
+}
+
+.hero-card,
+:root[data-theme="light"] .hero-card {
+  border: 1px solid rgba(255, 255, 255, 0.34);
+  box-shadow: 0 24px 70px rgba(153, 27, 27, 0.18);
+}
+
+.sidebar {
+  box-shadow: 20px 0 70px rgba(127, 29, 29, 0.2);
+}
+
+.sidebar-link,
+.hero-action-button,
+.sidebar-quick-toggle {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.10);
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.sidebar-link:hover,
+.sidebar-link-active {
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  transform: translateX(0.2rem);
+}
+
+.sidebar-quick-panel,
+.brand-system-card,
+.brand-promise-card,
+.stat-card,
+.hero-detail-card {
+  border-color: rgba(255, 255, 255, 0.20);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.auth-card,
+.panel-card,
+.info-card,
+.admin-report,
+.report-metric-card,
+.report-distribution-card,
+.report-state-card,
+.active-role-pill,
+.recent-entry,
+.service-history-card,
+.service-history-empty,
+.quote-form,
+.quote-box,
+.quote-empty,
+:root[data-theme="light"] .auth-card,
+:root[data-theme="light"] .panel-card,
+:root[data-theme="light"] .info-card,
+:root[data-theme="light"] .admin-report,
+:root[data-theme="light"] .report-metric-card,
+:root[data-theme="light"] .report-distribution-card,
+:root[data-theme="light"] .report-state-card,
+:root[data-theme="light"] .active-role-pill,
+:root[data-theme="light"] .recent-entry,
+:root[data-theme="light"] .service-history-card,
+:root[data-theme="light"] .service-history-empty,
+:root[data-theme="light"] .quote-form,
+:root[data-theme="light"] .quote-box,
+:root[data-theme="light"] .quote-empty {
+  border: 1px solid rgba(254, 202, 202, 0.86);
+  background: rgba(255, 255, 255, 0.94);
+  color: #111827;
+  box-shadow: 0 18px 48px rgba(153, 27, 27, 0.08);
+}
+
+:root[data-theme="dark"] .auth-card,
+:root[data-theme="dark"] .panel-card,
+:root[data-theme="dark"] .info-card,
+:root[data-theme="dark"] .admin-report,
+:root[data-theme="dark"] .report-metric-card,
+:root[data-theme="dark"] .report-distribution-card,
+:root[data-theme="dark"] .report-state-card,
+:root[data-theme="dark"] .active-role-pill,
+:root[data-theme="dark"] .recent-entry,
+:root[data-theme="dark"] .service-history-card,
+:root[data-theme="dark"] .service-history-empty,
+:root[data-theme="dark"] .quote-form,
+:root[data-theme="dark"] .quote-box,
+:root[data-theme="dark"] .quote-empty {
+  border-color: rgba(248, 113, 113, 0.24);
+  background: rgba(24, 24, 27, 0.92);
+  color: #ffffff;
+  box-shadow: 0 20px 54px rgba(0, 0, 0, 0.28);
+}
+
+input,
+textarea,
+select {
+  border: 1px solid #fecaca;
+  border-radius: 0.85rem;
+  background: rgba(255, 255, 255, 0.98);
+  color: #111827;
+  font-weight: 650;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.7), 0 10px 22px rgba(153, 27, 27, 0.05);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.14);
+}
+
+.command,
+.mini-command,
+.icon-command,
+.hero-action-button,
+.sidebar-quick-toggle {
+  border-radius: 0.85rem;
+  font-weight: 850;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    background 160ms ease,
+    border-color 160ms ease;
+}
+
+.command:hover,
+.mini-command:hover,
+.icon-command:hover,
+.hero-action-button:hover,
+.sidebar-quick-toggle:hover {
+  transform: translateY(-1px);
+}
+
+.command-primary {
+  border-color: #b91c1c;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 42%, #991b1b 100%);
+  color: #ffffff;
+  box-shadow: 0 18px 34px rgba(185, 28, 28, 0.28);
+}
+
+.command-primary:hover {
+  box-shadow: 0 22px 42px rgba(185, 28, 28, 0.34);
+}
+
+.command-ghost,
+.mini-command,
+.icon-command {
+  border-color: #fecaca;
+  background: #ffffff;
+  color: #991b1b;
+  box-shadow: 0 10px 24px rgba(153, 27, 27, 0.06);
+}
+
+.info-card-icon,
+.stat-icon {
+  background: linear-gradient(135deg, #fff1f2 0%, #fee2e2 100%);
+  color: #dc2626;
+  box-shadow: inset 0 0 0 1px rgba(220, 38, 38, 0.10);
+}
+
+.panel-card .bg-mytgo-gradient,
+.auth-card .bg-mytgo-gradient,
+.info-card .bg-mytgo-gradient {
+  background-image: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+}
+
+.status-step-done .status-dot,
+.status-step-current .status-dot {
+  background: #dc2626;
+  box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.16);
+}
+
+.quote-form,
+.quote-box,
+.quote-empty,
+.service-history-panel {
+  border-color: rgba(254, 202, 202, 0.9);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(254, 242, 242, 0.92));
+}
+
+.admin-command-bar {
+  border-color: rgba(254, 202, 202, 0.9);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.94), rgba(254, 226, 226, 0.74));
+}
+
+.admin-command-bar span {
+  color: #991b1b;
+}
+
+.admin-command-bar svg {
+  color: #dc2626;
+}
+
+.report-distribution-bar span,
+:root[data-theme="light"] .report-distribution-bar span {
+  background: linear-gradient(90deg, #ef4444, #991b1b);
+}
+
+.report-metric-value,
+.report-distribution-card h4,
+:root[data-theme="light"] .report-metric-value,
+:root[data-theme="light"] .report-distribution-card h4 {
+  color: #991b1b;
+}
+
+.brand-swatch {
+  box-shadow: 0 0 0 1px rgba(153, 27, 27, 0.12), 0 10px 22px rgba(127, 29, 29, 0.16);
+}
+
+.leaflet-container {
+  font-family: Inter, "SF Pro Display", "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+body * {
+  letter-spacing: 0 !important;
+}
+
+:root[data-theme="light"] .hero-card,
+:root[data-theme="light"] .sidebar,
+:root[data-theme="light"] .logo-mark {
+  color: #ffffff;
+}
+
+:root[data-theme="light"] .hero-card [class*="text-white"],
+:root[data-theme="light"] .sidebar [class*="text-white"],
+:root[data-theme="light"] .hero-card .hero-action-button,
+:root[data-theme="light"] .sidebar .hero-action-button,
+:root[data-theme="light"] .sidebar-link,
+:root[data-theme="light"] .sidebar-link *,
+:root[data-theme="light"] .sidebar-quick-toggle {
+  color: #ffffff !important;
+}
+
+:root[data-theme="light"] .sidebar-link:hover,
+:root[data-theme="light"] .sidebar-link-active,
+:root[data-theme="light"] .sidebar-link:hover *,
+:root[data-theme="light"] .sidebar-link-active * {
+  color: #ffffff !important;
 }
