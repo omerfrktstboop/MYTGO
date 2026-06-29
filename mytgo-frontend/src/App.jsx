@@ -119,7 +119,7 @@ const navByRole = {
 };
 
 function App() {
-  const storedTheme = typeof window !== "undefined" ? window.localStorage.getItem("mytgo-theme") : null;
+  const storedTheme = typeof window !== "undefined" ? window.localStorage.getItem("ecar-theme") : null;
   const prefersDark =
     typeof window !== "undefined" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
   const [theme, setTheme] = useState(storedTheme ?? "light");
@@ -134,7 +134,7 @@ function App() {
       document.documentElement.dataset.theme = theme;
     }
     if (typeof window !== "undefined") {
-      window.localStorage.setItem("mytgo-theme", theme);
+      window.localStorage.setItem("ecar-theme", theme);
     }
   }, [theme]);
 
@@ -177,7 +177,7 @@ function App() {
   }
 
   if (booting) {
-    return <ShellFrame title="MYTGO">Bağlantı kuruluyor...</ShellFrame>;
+    return <ShellFrame title="E-Car">Bağlantı kuruluyor...</ShellFrame>;
   }
 
   if (!user || !token) {
@@ -198,7 +198,7 @@ function AuthScreen({ authMode, error, onAuth, onModeChange }) {
   const [form, setForm] = useState({
     email: "customer@mytgo.local",
     password: "DemoPass123!",
-    full_name: "MYTGO Customer",
+    full_name: "E-Car Customer",
     phone: "",
     role: "customer",
   });
@@ -223,7 +223,7 @@ function AuthScreen({ authMode, error, onAuth, onModeChange }) {
   }
 
   return (
-    <ShellFrame title="MYTGO" subtitle="Araç bakım ve vale operasyonu">
+    <ShellFrame title="E-Car" subtitle="Araç bakım ve vale operasyonu">
       <form className="grid gap-3" onSubmit={submit}>
         <Segmented
           value={authMode}
@@ -284,7 +284,7 @@ function AuthScreen({ authMode, error, onAuth, onModeChange }) {
                 email,
                 role,
                 password: "DemoPass123!",
-                full_name: `MYTGO ${label}`,
+                full_name: `E-Car ${label}`,
               }));
               onModeChange("login");
             }}
@@ -503,7 +503,7 @@ function Dashboard({ token, user, onLogout, theme, onThemeToggle }) {
             <Gauge size={15} />
             Marka Sistemi
           </div>
-          <div className="mt-3 grid grid-cols-4 gap-2" aria-label="MYTGO renk sistemi">
+          <div className="mt-3 grid grid-cols-4 gap-2" aria-label="E-Car renk sistemi">
             {brandTokens.map(([name, color]) => (
               <span className="brand-swatch" key={name} title={name} style={{ background: color }} />
             ))}
@@ -573,7 +573,7 @@ function Dashboard({ token, user, onLogout, theme, onThemeToggle }) {
                   </button>
                 </div>
               </div>
-              <p className="text-xs font-bold uppercase tracking-[0.24em] text-white/80">MYTGO kontrol merkezi</p>
+              <p className="text-xs font-bold uppercase tracking-[0.24em] text-white/80">E-Car kontrol merkezi</p>
               <h1 className="mt-2 max-w-2xl text-3xl font-black leading-tight sm:text-4xl">
                 Parlak marka sistemiyle servis, vale ve chat tek akışta
               </h1>
@@ -736,7 +736,7 @@ function CustomerAppointments({ token, vehicles, appointments, onChanged }) {
   const [form, setForm] = useState({
     vehicle_id: "",
     service_type: "repair",
-    service_address: "MYTGO Sanayi",
+    service_address: "E-Car Sanayi",
     notes: "",
   });
 
@@ -904,7 +904,7 @@ function ValetPanel({ token, role, appointments, valetRequests, onChanged }) {
   const [form, setForm] = useState({
     appointment_id: "",
     pickup_address: "Müşteri Adresi",
-    dropoff_address: "MYTGO Sanayi",
+    dropoff_address: "E-Car Sanayi",
   });
 
   async function submit(event) {
@@ -1111,7 +1111,7 @@ function TrackingMap({ token, transfers, role }) {
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
           <CircleMarker center={position} radius={10} pathOptions={{ color: "#dc2626" }}>
-            <Popup>MYTGO Vale</Popup>
+            <Popup>E-Car Vale</Popup>
           </CircleMarker>
           <Polyline positions={trail} pathOptions={{ color: "#991b1b", weight: 4 }} />
         </MapContainer>
@@ -1456,9 +1456,9 @@ function BrandLogo({ compact = false }) {
       </span>
       {!compact && (
         <span>
-          <span className="block text-2xl font-black tracking-tight text-white">MYTGO</span>
+          <span className="block text-2xl font-black tracking-tight text-white">E-Car</span>
           <span className="block text-xs font-bold uppercase tracking-[0.24em] text-red-100">
-            Mobil oto servis
+            Elektrikli araç servisi
           </span>
         </span>
       )}
@@ -1476,7 +1476,7 @@ function ShellFrame({ title, subtitle, children }) {
             Aracını servis, vale ve chat ile tek panelden yönet.
           </h1>
           <p className="mt-5 max-w-lg text-lg text-white/76">
-            Canlı konum takibi, randevu akışı ve rol bazlı operasyonlar için modern MYTGO deneyimi.
+            Canlı konum takibi, randevu akışı ve rol bazlı operasyonlar için modern E-Car deneyimi.
           </p>
         </div>
         <div className="auth-card rounded-[2rem] border border-white/70 bg-white/88 p-5 shadow-soft backdrop-blur sm:p-7">
