@@ -14,6 +14,7 @@ import {
   MapPin,
   Menu,
   MessageCircle,
+  Moon,
   Play,
   Plus,
   Route,
@@ -23,6 +24,7 @@ import {
   Sparkles,
   Square,
   UserRound,
+  Sun,
   Wrench,
   X,
 } from "lucide-react";
@@ -73,11 +75,22 @@ const roleAccentLabels = {
 };
 
 const brandTokens = [
-  ["Violet", "#7c3aed"],
-  ["Cyan", "#0891b2"],
-  ["Rose", "#f43f5e"],
-  ["Neon", "#b6ff5c"],
+  ["Carbon", "#0f0f0f"],
+  ["Graphite", "#262626"],
+  ["Silver", "#a3a3a3"],
+  ["Moss", "#5b7f66"],
 ];
+
+const panelDescriptions = {
+  Araç: "Araç kaydı, geçmiş ve servis hazırlıkları tek kartta.",
+  Randevu: "Durum takibi, teklif akışı ve servis onayı burada.",
+  Vale: "Transfer isteği, rota ve teslim akışı tek bakışta.",
+  Chat: "Müşteri ve ekip mesajları canlı konuşma akışında.",
+  Bildirimler: "Servis, vale ve chat olayları burada görünür.",
+  Transfer: "Vale operasyonunun durum geçişlerini yönetin.",
+  Takip: "Canlı konum ve hareket çizgisiyle takip edin.",
+  Panel: "Yönetim özeti, kapasite ve raporları hızlıca görün.",
+};
 
 const navByRole = {
   customer: [
@@ -85,28 +98,45 @@ const navByRole = {
     ["Randevu", CalendarCheck],
     ["Vale", MapPin],
     ["Chat", MessageCircle],
+    ["Bildirimler", BellRing],
   ],
   mechanic: [
     ["Randevu", Wrench],
     ["Chat", MessageCircle],
+    ["Bildirimler", BellRing],
   ],
   valet: [
     ["Transfer", CarFront],
     ["Takip", MapPin],
+    ["Bildirimler", BellRing],
   ],
   admin: [
     ["Panel", ShieldCheck],
     ["Vale", MapPin],
     ["Chat", MessageCircle],
+    ["Bildirimler", BellRing],
   ],
 };
 
 function App() {
+  const storedTheme = typeof window !== "undefined" ? window.localStorage.getItem("mytgo-theme") : null;
+  const prefersDark =
+    typeof window !== "undefined" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+  const [theme, setTheme] = useState(storedTheme ?? "dark");
   const [token, setToken] = useState(getStoredToken());
   const [user, setUser] = useState(null);
   const [authMode, setAuthMode] = useState("login");
   const [authError, setAuthError] = useState("");
   const [booting, setBooting] = useState(Boolean(token));
+
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      document.documentElement.dataset.theme = theme;
+    }
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem("mytgo-theme", theme);
+    }
+  }, [theme]);
 
   useEffect(() => {
     if (!token) {
@@ -161,7 +191,7 @@ function App() {
     );
   }
 
-  return <Dashboard token={token} user={user} onLogout={handleLogout} />;
+  return <Dashboard token={token} user={user} onLogout={handleLogout} theme={theme} onThemeToggle={() => setTheme((current) => (current === "dark" ? "light" : "dark"))} />;
 }
 
 function AuthScreen({ authMode, error, onAuth, onModeChange }) {
@@ -268,11 +298,13 @@ function AuthScreen({ authMode, error, onAuth, onModeChange }) {
   );
 }
 
-function Dashboard({ token, user, onLogout }) {
+function Dashboard({ token, user, onLogout, theme, onThemeToggle }) {
   const [vehicles, setVehicles] = useState([]);
   const [appointments, setAppointments] = useState([]);
   const [valetRequests, setValetRequests] = useState([]);
   const [conversations, setConversations] = useState([]);
+  const [notifications, setNotifications] = useState([]);
+  const [unreadNotificationCount, setUnreadNotificationCount] = useState(0);
   const [users, setUsers] = useState([]);
   const [active, setActive] = useState(navByRole[user.role][0][0]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -282,16 +314,27 @@ function Dashboard({ token, user, onLogout }) {
   const refresh = async () => {
     setError("");
     try {
-      const [vehiclesData, appointmentsData, valetData, conversationsData] = await Promise.all([
+      const [
+        vehiclesData,
+        appointmentsData,
+        valetData,
+        conversationsData,
+        notificationsData,
+        unreadCountData,
+      ] = await Promise.all([
         apiRequest("/api/v1/vehicles", { token }).catch(() => []),
         apiRequest("/api/v1/appointments", { token }).catch(() => []),
         apiRequest("/api/v1/valet-requests", { token }).catch(() => []),
         apiRequest("/api/v1/conversations", { token }).catch(() => []),
+        apiRequest("/api/v1/notifications", { token }).catch(() => []),
+        apiRequest("/api/v1/notifications/unread-count", { token }).catch(() => ({ unread_count: 0 })),
       ]);
       setVehicles(vehiclesData);
       setAppointments(appointmentsData);
       setValetRequests(valetData);
       setConversations(conversationsData);
+      setNotifications(notificationsData);
+      setUnreadNotificationCount(unreadCountData.unread_count ?? 0);
       if (user.role === "admin") {
         setUsers(await apiRequest("/api/v1/users", { token }));
       }
@@ -305,10 +348,11 @@ function Dashboard({ token, user, onLogout }) {
   }, [token, user.role]);
 
   const totals = [
-    ["Araç", vehicles.length, CarFront, "from-violet-500 to-cyan-500"],
-    ["Randevu", appointments.length, CalendarCheck, "from-blue-500 to-violet-500"],
-    ["Vale", valetRequests.length, Route, "from-cyan-500 to-emerald-400"],
-    ["Chat", conversations.length, MessageCircle, "from-rose-500 to-orange-400"],
+    ["Araç", vehicles.length, CarFront, "from-zinc-700 to-zinc-900"],
+    ["Randevu", appointments.length, CalendarCheck, "from-zinc-700 to-zinc-900"],
+    ["Vale", valetRequests.length, Route, "from-zinc-700 to-zinc-900"],
+    ["Chat", conversations.length, MessageCircle, "from-zinc-700 to-zinc-900"],
+    ["Bildirim", unreadNotificationCount, BellRing, "from-zinc-700 to-zinc-900"],
   ];
 
   const panels = {
@@ -344,6 +388,13 @@ function Dashboard({ token, user, onLogout }) {
       />
     ),
     Chat: <ChatPanel token={token} user={user} conversations={conversations} />,
+    Bildirimler: (
+      <NotificationCenter
+        token={token}
+        notifications={notifications}
+        onChanged={() => refreshWithNotice(refresh, setNotice, "Bildirimler güncellendi")}
+      />
+    ),
     Transfer: (
       <ValetOperations
         token={token}
@@ -377,20 +428,50 @@ function Dashboard({ token, user, onLogout }) {
       <aside className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`}>
         <div className="flex items-center justify-between gap-3">
           <BrandLogo />
-          <button
-            aria-label="Menüyü kapat"
-            className="icon-command border-white/20 bg-white/10 text-white lg:hidden"
-            type="button"
-            onClick={() => setSidebarOpen(false)}
-          >
-            <X size={18} />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              aria-label={theme === "dark" ? "Aydınlık temaya geç" : "Karanlık temaya geç"}
+              className="icon-command border-white/20 bg-white/10 text-white"
+              type="button"
+              onClick={onThemeToggle}
+              title={theme === "dark" ? "Aydınlık" : "Karanlık"}
+            >
+              {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
+            <button
+              aria-label="Menüyü kapat"
+              className="icon-command border-white/20 bg-white/10 text-white lg:hidden"
+              type="button"
+              onClick={() => setSidebarOpen(false)}
+            >
+              <X size={18} />
+            </button>
+          </div>
         </div>
 
         <div className="mt-8 rounded-3xl bg-white/14 p-4 text-white shadow-glow ring-1 ring-white/20">
-          <p className="text-xs font-bold uppercase tracking-[0.22em] text-cyan-100">Canlı Operasyon</p>
+          <p className="text-xs font-bold uppercase tracking-[0.22em] text-white/70">Canlı Operasyon</p>
           <p className="mt-2 text-2xl font-black">{roleLabels[user.role]} Paneli</p>
           <p className="mt-1 text-sm text-white/75">{roleAccentLabels[user.role]} için mobil öncelikli kontrol.</p>
+        </div>
+
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:hidden">
+          <button
+            className="hero-action-button hero-action-button-compact"
+            type="button"
+            onClick={onLogout}
+          >
+            <LogOut size={16} />
+            Çıkış yap
+          </button>
+          <button
+            className="hero-action-button hero-action-button-compact"
+            type="button"
+            onClick={onThemeToggle}
+          >
+            {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
+            {theme === "dark" ? "Aydınlık" : "Karanlık"}
+          </button>
         </div>
 
         <nav className="mt-8 grid gap-2" aria-label="Ana menü">
@@ -408,6 +489,11 @@ function Dashboard({ token, user, onLogout }) {
             >
               <Icon size={20} />
               <span>{label}</span>
+              {label === "Bildirimler" && unreadNotificationCount > 0 && (
+                <span className="ml-auto rounded-full bg-lime-300 px-2 py-0.5 text-[11px] font-black text-mytgo-ink">
+                  {unreadNotificationCount}
+                </span>
+              )}
             </button>
           ))}
         </nav>
@@ -425,6 +511,17 @@ function Dashboard({ token, user, onLogout }) {
           <p className="mt-3 text-sm font-semibold text-white/82">Parlak CTA, yüksek kontrast ve tek elle erişilebilir akışlar.</p>
         </div>
 
+        <div className="sidebar-quick-panel">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-white/65">Hızlı Durum</p>
+            <p className="mt-1 text-sm font-semibold text-white">{navByRole[user.role].length} aktif bölüm</p>
+          </div>
+          <button className="sidebar-quick-toggle" type="button" onClick={onThemeToggle}>
+            {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
+            {theme === "dark" ? "Aydınlık" : "Karanlık"}
+          </button>
+        </div>
+
         <div className="mt-auto rounded-3xl border border-white/15 bg-white/10 p-4 text-white">
           <p className="text-sm font-bold">{user.full_name}</p>
           <p className="mt-1 text-xs uppercase tracking-[0.18em] text-white/65">{roleLabels[user.role]}</p>
@@ -434,38 +531,90 @@ function Dashboard({ token, user, onLogout }) {
             onClick={onLogout}
           >
             <LogOut size={18} />
-            Çıkış
+            Çıkış yap
           </button>
         </div>
       </aside>
 
       <section className="dashboard-surface min-h-dvh px-4 py-5 sm:px-6 lg:ml-[19rem] lg:px-8">
         <header className="hero-card overflow-hidden rounded-[2rem] p-5 text-white shadow-glow sm:p-7">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <div className="mobile-topbar mb-4 lg:hidden">
-                <button
-                  aria-label="Menüyü aç"
-                  className="inline-grid h-11 w-11 place-items-center rounded-2xl bg-white/16 text-white ring-1 ring-white/25"
-                  type="button"
-                  onClick={() => setSidebarOpen(true)}
-                >
-                  <Menu size={22} />
-                </button>
-                <span className="rounded-full bg-white/16 px-3 py-2 text-xs font-black uppercase tracking-[0.16em] ring-1 ring-white/20">
-                  Mobil Panel
-                </span>
+          <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
+            <div className="min-w-0 flex-1">
+              <div className="mb-4 flex flex-col gap-2 lg:hidden">
+                <div className="flex items-center gap-2">
+                  <button
+                    aria-label="Menüyü aç"
+                    className="inline-grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-white/16 text-white ring-1 ring-white/25"
+                    type="button"
+                    onClick={() => setSidebarOpen(true)}
+                  >
+                    <Menu size={22} />
+                  </button>
+                  <span className="rounded-full bg-white/16 px-3 py-2 text-xs font-black uppercase tracking-[0.16em] ring-1 ring-white/20">
+                    Mobil Panel
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                  <button
+                    className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/20 bg-white/16 px-3 py-3 text-xs font-black text-white ring-1 ring-white/25"
+                    type="button"
+                    onClick={onLogout}
+                  >
+                    <LogOut size={16} />
+                    Çıkış yap
+                  </button>
+                  <button
+                    className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/20 bg-white/16 px-3 py-3 text-xs font-black text-white ring-1 ring-white/25"
+                    type="button"
+                    onClick={onThemeToggle}
+                  >
+                    {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
+                    {theme === "dark" ? "Aydınlık tema" : "Karanlık tema"}
+                  </button>
+                </div>
               </div>
-              <p className="text-xs font-bold uppercase tracking-[0.24em] text-cyan-100">MYTGO kontrol merkezi</p>
+              <p className="text-xs font-bold uppercase tracking-[0.24em] text-white/80">MYTGO kontrol merkezi</p>
               <h1 className="mt-2 max-w-2xl text-3xl font-black leading-tight sm:text-4xl">
                 Parlak marka sistemiyle servis, vale ve chat tek akışta
               </h1>
               <p className="mt-3 max-w-2xl text-sm text-white/78 sm:text-base">
                 {roleLabels[user.role]} akışı için randevu, vale takibi ve mesajlaşma modern tek panelde.
               </p>
+
+              <div className="hero-detail-strip mt-6 grid gap-3 sm:grid-cols-3">
+                {[
+                  [UserRound, "Aktif rol", roleLabels[user.role]],
+                  [BellRing, "Okunmamış", `${unreadNotificationCount} bildirim`],
+                  [Activity, "Canlı durum", "Randevu + vale akışı"],
+                ].map(([Icon, label, value]) => (
+                  <div className="hero-detail-card" key={label}>
+                    <span className="hero-detail-icon">
+                      <Icon size={16} />
+                    </span>
+                    <div>
+                      <p className="text-[11px] font-black uppercase tracking-[0.18em] text-white/65">{label}</p>
+                      <p className="mt-1 text-sm font-bold text-white">{value}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
-            <div className="hidden shrink-0 rounded-3xl bg-white/15 p-3 ring-1 ring-white/20 sm:block">
-              <BrandLogo compact />
+
+            <div className="hidden w-full max-w-sm shrink-0 flex-col gap-3 xl:flex">
+              <div className="rounded-[1.75rem] border border-white/20 bg-white/15 p-4 ring-1 ring-white/10 backdrop-blur">
+                <BrandLogo compact />
+                <div className="mt-4 grid gap-3">
+                  <div className="rounded-2xl bg-white/10 px-4 py-3 ring-1 ring-white/15">
+                    <p className="text-[11px] font-black uppercase tracking-[0.18em] text-white/65">Oturum</p>
+                    <p className="mt-1 text-lg font-black">{user.full_name}</p>
+                    <p className="text-sm text-white/72">{roleLabels[user.role]} erişimi aktif</p>
+                  </div>
+                  <button className="hero-action-button" type="button" onClick={onLogout}>
+                    <LogOut size={16} />
+                    Çıkış yap
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -568,8 +717,13 @@ function CustomerVehicles({ token, vehicles, onChanged }) {
       </form>
       <CardGrid>
         {vehicles.map((vehicle) => (
-          <InfoCard key={vehicle.id} title={vehicle.plate_number} meta={`${vehicle.brand} ${vehicle.model}`}>
-            {vehicle.year ?? "Yıl belirtilmedi"}
+          <InfoCard
+            key={vehicle.id}
+            icon={CarFront}
+            title={vehicle.plate_number}
+            meta={`${vehicle.brand} ${vehicle.model}`}
+            description={`${vehicle.year ?? "Yıl belirtilmedi"} • Servis geçmişi ve hazırlık notları`}
+          >
             <ServiceHistoryLoader apiRequest={apiRequest} token={token} vehicle={vehicle} />
           </InfoCard>
         ))}
@@ -697,8 +851,10 @@ function MechanicAppointments({ token, appointments, onChanged }) {
         {appointments.map((appointment) => (
           <InfoCard
             key={appointment.id}
+            icon={CalendarCheck}
             title={serviceLabels[appointment.service_type]}
             meta={statusLabels[appointment.status]}
+            description={`${appointment.service_address ?? "Adres yok"} • ${appointment.notes || "Ek not yok"}`}
           >
             <DetailRows rows={getDetailRows("appointment", appointment)} />
             <StatusTimeline steps={buildAppointmentTimeline(appointment)} />
@@ -819,7 +975,13 @@ function ValetOperations({ token, valetRequests, onChanged }) {
     <Panel title="Transferler" icon={CarFront}>
       <CardGrid>
         {valetRequests.map((transfer) => (
-          <InfoCard key={transfer.id} title={`Transfer #${transfer.id}`} meta={statusLabels[transfer.status]}>
+          <InfoCard
+            key={transfer.id}
+            icon={MapPin}
+            title={`Transfer #${transfer.id}`}
+            meta={statusLabels[transfer.status]}
+            description={`${transfer.pickup_address ?? "Alış yok"} → ${transfer.dropoff_address ?? "Bırakış yok"}`}
+          >
             <DetailRows rows={getDetailRows("valet", transfer)} />
             <StatusTimeline steps={buildValetTimeline(transfer)} />
             <div className="mt-3 grid grid-cols-2 gap-2">
@@ -1038,6 +1200,106 @@ function ChatPanel({ token, user, conversations }) {
   );
 }
 
+const notificationTypeLabels = {
+  "appointment.created": "Randevu oluşturuldu",
+  "appointment.status_changed": "Randevu durumu",
+  "appointment.quote_sent": "Teklif hazır",
+  "valet.created": "Vale talebi",
+  "valet.status_changed": "Transfer durumu",
+};
+
+function formatNotificationTimestamp(value) {
+  return new Intl.DateTimeFormat("tr-TR", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(new Date(value));
+}
+
+function NotificationCenter({ token, notifications, onChanged }) {
+  const unreadCount = notifications.filter((notification) => !notification.read_at).length;
+
+  async function markAsRead(id) {
+    await apiRequest(`/api/v1/notifications/${id}/read`, {
+      method: "PATCH",
+      token,
+    });
+    onChanged();
+  }
+
+  return (
+    <Panel title="Bildirimler" icon={BellRing}>
+      <div className="rounded-3xl border border-mytgo-line bg-mytgo-panel px-4 py-3">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-mytgo-teal">Canlı olay akışı</p>
+            <p className="mt-1 text-sm text-mytgo-muted">Servis, vale ve chat olayları burada görünür.</p>
+          </div>
+          <span className="rounded-full bg-lime-300 px-3 py-1 text-xs font-black text-mytgo-ink">
+            {unreadCount} okunmamış
+          </span>
+        </div>
+      </div>
+
+      <div className="mt-4 grid gap-3">
+        {notifications.length === 0 ? (
+          <div className="rounded-3xl border border-dashed border-mytgo-line bg-white px-4 py-6 text-sm text-mytgo-muted">
+            Henüz bildirim yok.
+          </div>
+        ) : (
+          notifications.map((notification) => (
+            <article
+              key={notification.id}
+              className={`rounded-3xl border p-4 shadow-sm transition ${
+                notification.read_at ? "border-mytgo-line bg-white" : "border-lime-200 bg-lime-50/70"
+              }`}
+            >
+              <div className="flex items-start gap-3">
+                <span
+                  className={`mt-1 h-3 w-3 rounded-full ${notification.read_at ? "bg-mytgo-line" : "bg-lime-400"}`}
+                />
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-start justify-between gap-2">
+                    <div>
+                      <p className="font-black text-mytgo-ink">{notification.title}</p>
+                      <p className="mt-1 text-xs font-bold uppercase tracking-[0.16em] text-mytgo-teal">
+                        {notificationTypeLabels[notification.event_type] ?? notification.event_type}
+                      </p>
+                    </div>
+                    {!notification.read_at ? (
+                      <button
+                        className="mini-command"
+                        type="button"
+                        onClick={() => markAsRead(notification.id)}
+                      >
+                        Okundu işaretle
+                      </button>
+                    ) : (
+                      <span className="rounded-full bg-emerald-100 px-3 py-1 text-[11px] font-black uppercase tracking-[0.16em] text-emerald-700">
+                        Okundu
+                      </span>
+                    )}
+                  </div>
+
+                  <p className="mt-3 text-sm leading-6 text-mytgo-muted">{notification.body}</p>
+
+                  <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-mytgo-muted">
+                    <span>{formatNotificationTimestamp(notification.created_at)}</span>
+                    <span>•</span>
+                    <span>
+                      {notification.entity_type ?? "genel"}
+                      {notification.entity_id ? ` #${notification.entity_id}` : ""}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </article>
+          ))
+        )}
+      </div>
+    </Panel>
+  );
+}
+
 function getDefaultAdminReportFilters() {
   const now = new Date();
   const start = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -1125,8 +1387,10 @@ function AppointmentList({ appointments, onApproveQuote }) {
       {appointments.map((appointment) => (
         <InfoCard
           key={appointment.id}
+          icon={Wrench}
           title={`#${appointment.id} ${serviceLabels[appointment.service_type]}`}
           meta={statusLabels[appointment.status]}
+          description={`${appointment.service_address ?? "Adres yok"} • Teklif ve iş akışı özeti`}
         >
           <DetailRows rows={getDetailRows("appointment", appointment)} />
           <StatusTimeline steps={buildAppointmentTimeline(appointment)} />
@@ -1215,7 +1479,7 @@ function ShellFrame({ title, subtitle, children }) {
             Canlı konum takibi, randevu akışı ve rol bazlı operasyonlar için modern MYTGO deneyimi.
           </p>
         </div>
-        <div className="rounded-[2rem] border border-white/70 bg-white/88 p-5 shadow-soft backdrop-blur sm:p-7">
+        <div className="auth-card rounded-[2rem] border border-white/70 bg-white/88 p-5 shadow-soft backdrop-blur sm:p-7">
           <BrandLogo compact />
           <div className="mt-6 border-b border-mytgo-line pb-5">
             <p className="text-xs font-black uppercase tracking-[0.24em] text-mytgo-teal">{title}</p>
@@ -1228,7 +1492,9 @@ function ShellFrame({ title, subtitle, children }) {
   );
 }
 
-function Panel({ title, icon: Icon, children }) {
+function Panel({ title, icon: Icon, description, children }) {
+  const resolvedDescription = description ?? panelDescriptions[title] ?? "Rol bazlı operasyonlar için detaylı işlem alanı.";
+
   return (
     <section className="panel-card grid gap-4 p-4 sm:p-5">
       <div className="flex items-center gap-3">
@@ -1238,6 +1504,7 @@ function Panel({ title, icon: Icon, children }) {
         <div>
           <p className="text-xs font-black uppercase tracking-[0.2em] text-mytgo-teal">Operasyon</p>
           <h2 className="text-2xl font-black">{title}</h2>
+          <p className="panel-description mt-1 max-w-2xl">{resolvedDescription}</p>
         </div>
       </div>
       {children}
@@ -1277,16 +1544,22 @@ function CardGrid({ children }) {
   return <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">{children}</div>;
 }
 
-function InfoCard({ title, meta, children }) {
+function InfoCard({ title, meta, description, icon: Icon = Sparkles, children }) {
   return (
-    <article className="rounded-3xl border border-mytgo-line/70 bg-white/90 p-4 shadow-soft transition hover:-translate-y-0.5 hover:shadow-glow">
-      <div className="flex items-start justify-between gap-3">
-        <h3 className="font-black">{title}</h3>
+    <article className="info-card transition hover:-translate-y-0.5 hover:shadow-glow">
+      <div className="flex items-start gap-3">
+        <span className="info-card-icon">
+          <Icon size={18} />
+        </span>
+        <div className="min-w-0 flex-1">
+          <h3 className="font-black leading-tight">{title}</h3>
+          {description && <p className="mt-1 text-xs font-semibold text-mytgo-muted">{description}</p>}
+        </div>
         <span className="rounded-full bg-orange-100 px-2.5 py-1 text-xs font-black text-orange-700">
           {meta}
         </span>
       </div>
-      <div className="mt-2 text-sm text-slate-600">{children}</div>
+      <div className="mt-3 text-sm text-slate-600">{children}</div>
     </article>
   );
 }

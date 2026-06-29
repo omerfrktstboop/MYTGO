@@ -1,10 +1,16 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from sqlalchemy import Boolean, Enum as SAEnum, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base, TimestampMixin
 from app.models.enums import UserRole
+
+if TYPE_CHECKING:
+    from app.models.premium import FleetAccount, PremiumSubscription
+    from app.models.vehicle import Vehicle
 
 
 class User(Base, TimestampMixin):
@@ -24,5 +30,13 @@ class User(Base, TimestampMixin):
 
     vehicles: Mapped[list["Vehicle"]] = relationship(
         back_populates="owner",
+        cascade="all, delete-orphan",
+    )
+    premium_subscriptions: Mapped[list["PremiumSubscription"]] = relationship(
+        back_populates="customer",
+        cascade="all, delete-orphan",
+    )
+    managed_fleet_accounts: Mapped[list["FleetAccount"]] = relationship(
+        back_populates="manager",
         cascade="all, delete-orphan",
     )

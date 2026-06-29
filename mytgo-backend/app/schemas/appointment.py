@@ -2,7 +2,7 @@ from datetime import datetime
 
 from pydantic import Field
 
-from app.models.enums import AppointmentStatus, ServiceType
+from app.models.enums import AppointmentStatus, ExtraCostStatus, ServiceType
 from app.schemas.base import ORMModel
 
 
@@ -14,6 +14,9 @@ class AppointmentCreate(ORMModel):
     notes: str | None = None
     quote_amount_cents: int | None = Field(default=None, ge=0)
     quote_notes: str | None = None
+    pickup_photo_urls: list[str] | None = None
+    return_photo_urls: list[str] | None = None
+    damage_notes: str | None = None
 
 
 class AppointmentUpdate(ORMModel):
@@ -24,6 +27,13 @@ class AppointmentUpdate(ORMModel):
     notes: str | None = None
     quote_amount_cents: int | None = Field(default=None, ge=0)
     quote_notes: str | None = None
+    pickup_photo_urls: list[str] | None = None
+    return_photo_urls: list[str] | None = None
+    damage_notes: str | None = None
+    digital_approval_name: str | None = Field(default=None, max_length=120)
+    extra_cost_amount_cents: int | None = Field(default=None, ge=0)
+    extra_cost_notes: str | None = None
+    extra_cost_status: ExtraCostStatus | None = None
 
 
 class AppointmentRead(ORMModel):
@@ -38,3 +48,14 @@ class AppointmentRead(ORMModel):
     notes: str | None = None
     quote_amount_cents: int | None = None
     quote_notes: str | None = None
+    pickup_photo_urls: list[str] | None = None
+    return_photo_urls: list[str] | None = None
+    damage_notes: str | None = None
+    digital_approval_name: str | None = None
+    digital_approved_at: datetime | None = None
+    extra_cost_amount_cents: int | None = None
+    extra_cost_notes: str | None = None
+    extra_cost_status: ExtraCostStatus | None = None
+    is_premium: bool = False
+    priority_score: int = 0
+    premium_plan_code: str | None = None

@@ -23,6 +23,12 @@ class AppointmentStatus(str, Enum):
     CANCELLED = "cancelled"
 
 
+class ExtraCostStatus(str, Enum):
+    PENDING = "pending"
+    APPROVED = "approved"
+    REJECTED = "rejected"
+
+
 class ValetStatus(str, Enum):
     REQUESTED = "requested"
     ASSIGNED = "assigned"

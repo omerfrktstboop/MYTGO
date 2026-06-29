@@ -10,6 +10,7 @@ from app.models.enums import UserRole, ValetStatus
 from app.models.user import User
 from app.models.valet import ValetTransfer
 from app.schemas.valet import ValetTransferCreate, ValetTransferUpdate
+from app.services.notifications import notify_valet_created, notify_valet_status_changed
 from app.services.users import get_first_valet
 
 
@@ -48,6 +49,8 @@ async def create_valet_transfer(
         status=ValetStatus.ASSIGNED if valet else ValetStatus.REQUESTED,
     )
     db.add(transfer)
+    await db.flush()
+    await notify_valet_created(db, transfer)
     await db.commit()
     await db.refresh(transfer)
     return transfer
@@ -86,6 +89,7 @@ async def update_valet_transfer(
             detail="Customers cannot update valet operations",
         )
 
+    old_status = transfer.status
     update_data = payload.model_dump(exclude_unset=True)
     if user.role == UserRole.VALET:
         update_data.pop("valet_id", None)
@@ -95,6 +99,7 @@ async def update_valet_transfer(
     for key, value in update_data.items():
         setattr(transfer, key, value)
 
+    await notify_valet_status_changed(db, transfer, old_status)
     await db.commit()
     await db.refresh(transfer)
     return transfer
@@ -111,12 +116,14 @@ async def update_transfer_location(
     if transfer is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Valet request not found")
 
+    old_status = transfer.status
     transfer.current_latitude = latitude
     transfer.current_longitude = longitude
     transfer.last_location_at = datetime.now(UTC)
     if transfer.status in (ValetStatus.REQUESTED, ValetStatus.ASSIGNED):
         transfer.status = ValetStatus.PICKING_UP
 
+    await notify_valet_status_changed(db, transfer, old_status)
     await db.commit()
     await db.refresh(transfer)
     return transfer
