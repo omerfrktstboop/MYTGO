@@ -1457,9 +1457,6 @@ function BrandLogo({ compact = false }) {
       {!compact && (
         <span>
           <span className="block text-2xl font-black tracking-tight text-white">E-Car</span>
-          <span className="block text-xs font-bold uppercase tracking-[0.24em] text-red-100">
-            Elektrikli araç servisi
-          </span>
         </span>
       )}
     </div>
