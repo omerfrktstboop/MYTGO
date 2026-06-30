@@ -13,6 +13,25 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = 60
     demo_password: str = "DemoPass123!"
 
+    telegram_bot_token: str | None = None
+    telegram_webhook_secret_token: str | None = None
+    telegram_allowed_chat_ids: str = ""
+    telegram_allowed_user_ids: str = ""
+    telegram_user_map: str = ""
+    telegram_access_password: str = "2525"
+    telegram_api_base_url: str = "https://api.telegram.org"
+    telegram_request_timeout_seconds: float = 10.0
+
+    openai_api_key: str | None = None
+    telegram_ai_model: str = "gpt-4o-mini"
+    telegram_ai_provider: str = "auto"
+
+    codex_repository_path: str = "/home/ubuntu/MYTGO"
+    codex_model: str = "gpt-5.4-mini"
+    codex_auto_push_enabled: bool = False
+    codex_auto_deploy_enabled: bool = False
+    codex_allowed_branches: str = ""
+
     cors_origins: list[str] = [
         "http://localhost:5173",
         "http://127.0.0.1:5173",
