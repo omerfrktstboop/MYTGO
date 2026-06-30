@@ -1,0 +1,27 @@
+name: MYTGO Auto Deploy
+
+"on":
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: mytgo-auto-deploy-main
+  cancel-in-progress: true
+
+jobs:
+  test-and-deploy:
+    runs-on: [self-hosted, linux, arm64, mytgo]
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Python syntax check
+        run: python3 -m py_compile mytgo-backend/app/main.py
+
+      - name: Deploy live application from main
+        run: |
+          /bin/bash /home/ubuntu/MYTGO/scripts/deploy_mytgo_from_main.sh origin/main

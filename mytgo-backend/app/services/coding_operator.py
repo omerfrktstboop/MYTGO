@@ -104,7 +104,7 @@ def infer_coding_request(text: str) -> CodingOperatorRequest | None:
 
 def build_codex_prompt(request: CodingOperatorRequest) -> str:
     repo_path = Path(settings.codex_repository_path).expanduser()
-    allowed_branches = settings.codex_allowed_branches.strip() or "feature/*"
+    allowed_branches = settings.codex_allowed_branches.strip() or "main"
     return (
         "Sen Codex CLI ile çalışan bir MYTGO kod operatörüsün.\n"
         f"Repo yolu: {repo_path}\n"
@@ -114,13 +114,14 @@ def build_codex_prompt(request: CodingOperatorRequest) -> str:
         "- Sadece bu repo içinde değişiklik yap.\n"
         "- Gizli bilgi, token veya credential yazdırma.\n"
         "- Önce analiz et, sonra gerekirse kodu değiştir, test çalıştır.\n"
-        "- Değişiklikleri feature branch üzerinde commit et.\n"
-        "- Eğer kullanıcı push veya deploy istiyorsa, git push ve deploy adımlarını DAHİL ET.\n"
+        "- Feature branch açma, pull request oluşturma.\n"
+        "- Değişiklikleri doğrudan main branch üzerinde commit et ve kullanıcı push/deploy istiyorsa doğrudan main'e push et.\n"
+        "- Eğer kullanıcı deploy istiyorsa push sonrası deploy adımlarını da dahil et.\n"
         "- Çıktıyı kısa, net ve uygulanabilir ver.\n"
         "Kullanıcı isteği:\n"
         f"{request.raw_text}\n"
         f"Algılanan niyet: {request.action} / confidence={request.confidence}\n"
-        "İstenen çıktı: yapılan değişiklik özeti, çalıştırılan testler, git durumu ve sonuç."
+        "İstenen çıktı: yapılan değişiklik özeti, çalıştırılan testler, git durumu, push/deploy sonucu ve branch bilgisi."
     )
 
 

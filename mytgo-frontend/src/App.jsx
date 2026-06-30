@@ -10,11 +10,9 @@ import {
   Crown,
   Gauge,
   Layers3,
-  LogOut,
   MapPin,
   Menu,
   MessageCircle,
-  Moon,
   Play,
   Plus,
   Route,
@@ -24,7 +22,6 @@ import {
   Sparkles,
   Square,
   UserRound,
-  Sun,
   Wrench,
   X,
 } from "lucide-react";
@@ -122,7 +119,7 @@ function App() {
   const storedTheme = typeof window !== "undefined" ? window.localStorage.getItem("ecar-theme") : null;
   const prefersDark =
     typeof window !== "undefined" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-  const [theme, setTheme] = useState(storedTheme ?? "light");
+  const [theme] = useState(storedTheme ?? (prefersDark ? "dark" : "light"));
   const [token, setToken] = useState(getStoredToken());
   const [user, setUser] = useState(null);
   const [authMode, setAuthMode] = useState("login");
@@ -170,12 +167,6 @@ function App() {
     }
   }
 
-  function handleLogout() {
-    clearStoredToken();
-    setToken(null);
-    setUser(null);
-  }
-
   if (booting) {
     return <ShellFrame title="E-Car">Bağlantı kuruluyor...</ShellFrame>;
   }
@@ -191,7 +182,7 @@ function App() {
     );
   }
 
-  return <Dashboard token={token} user={user} onLogout={handleLogout} theme={theme} onThemeToggle={() => setTheme((current) => (current === "dark" ? "light" : "dark"))} />;
+  return <Dashboard token={token} user={user} />;
 }
 
 function AuthScreen({ authMode, error, onAuth, onModeChange }) {
@@ -298,7 +289,7 @@ function AuthScreen({ authMode, error, onAuth, onModeChange }) {
   );
 }
 
-function Dashboard({ token, user, onLogout, theme, onThemeToggle }) {
+function Dashboard({ token, user }) {
   const [vehicles, setVehicles] = useState([]);
   const [appointments, setAppointments] = useState([]);
   const [valetRequests, setValetRequests] = useState([]);
@@ -430,15 +421,6 @@ function Dashboard({ token, user, onLogout, theme, onThemeToggle }) {
           <BrandLogo />
           <div className="flex items-center gap-2">
             <button
-              aria-label={theme === "dark" ? "Aydınlık temaya geç" : "Karanlık temaya geç"}
-              className="icon-command border-white/20 bg-white/10 text-white"
-              type="button"
-              onClick={onThemeToggle}
-              title={theme === "dark" ? "Aydınlık" : "Karanlık"}
-            >
-              {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
-            </button>
-            <button
               aria-label="Menüyü kapat"
               className="icon-command border-white/20 bg-white/10 text-white lg:hidden"
               type="button"
@@ -453,25 +435,6 @@ function Dashboard({ token, user, onLogout, theme, onThemeToggle }) {
           <p className="text-xs font-bold uppercase tracking-[0.22em] text-white/70">Canlı Operasyon</p>
           <p className="mt-2 text-2xl font-black">{roleLabels[user.role]} Paneli</p>
           <p className="mt-1 text-sm text-white/75">{roleAccentLabels[user.role]} için mobil öncelikli kontrol.</p>
-        </div>
-
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:hidden">
-          <button
-            className="hero-action-button hero-action-button-compact"
-            type="button"
-            onClick={onLogout}
-          >
-            <LogOut size={16} />
-            Çıkış yap
-          </button>
-          <button
-            className="hero-action-button hero-action-button-compact"
-            type="button"
-            onClick={onThemeToggle}
-          >
-            {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
-            {theme === "dark" ? "Aydınlık" : "Karanlık"}
-          </button>
         </div>
 
         <nav className="mt-8 grid gap-2" aria-label="Ana menü">
@@ -511,28 +474,9 @@ function Dashboard({ token, user, onLogout, theme, onThemeToggle }) {
           <p className="mt-3 text-sm font-semibold text-white/82">Parlak CTA, yüksek kontrast ve tek elle erişilebilir akışlar.</p>
         </div>
 
-        <div className="sidebar-quick-panel">
-          <div>
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-white/65">Hızlı Durum</p>
-            <p className="mt-1 text-sm font-semibold text-white">{navByRole[user.role].length} aktif bölüm</p>
-          </div>
-          <button className="sidebar-quick-toggle" type="button" onClick={onThemeToggle}>
-            {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
-            {theme === "dark" ? "Aydınlık" : "Karanlık"}
-          </button>
-        </div>
-
         <div className="mt-auto rounded-3xl border border-white/15 bg-white/10 p-4 text-white">
           <p className="text-sm font-bold">{user.full_name}</p>
           <p className="mt-1 text-xs uppercase tracking-[0.18em] text-white/65">{roleLabels[user.role]}</p>
-          <button
-            className="mt-4 w-full justify-start border-white/20 bg-white/10 text-white command"
-            type="button"
-            onClick={onLogout}
-          >
-            <LogOut size={18} />
-            Çıkış yap
-          </button>
         </div>
       </aside>
 
@@ -553,24 +497,6 @@ function Dashboard({ token, user, onLogout, theme, onThemeToggle }) {
                   <span className="rounded-full bg-white/16 px-3 py-2 text-xs font-black uppercase tracking-[0.16em] ring-1 ring-white/20">
                     Mobil Panel
                   </span>
-                </div>
-                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                  <button
-                    className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/20 bg-white/16 px-3 py-3 text-xs font-black text-white ring-1 ring-white/25"
-                    type="button"
-                    onClick={onLogout}
-                  >
-                    <LogOut size={16} />
-                    Çıkış yap
-                  </button>
-                  <button
-                    className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/20 bg-white/16 px-3 py-3 text-xs font-black text-white ring-1 ring-white/25"
-                    type="button"
-                    onClick={onThemeToggle}
-                  >
-                    {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
-                    {theme === "dark" ? "Aydınlık tema" : "Karanlık tema"}
-                  </button>
                 </div>
               </div>
               <p className="text-xs font-bold uppercase tracking-[0.24em] text-white/80">E-Car kontrol merkezi</p>
@@ -609,10 +535,6 @@ function Dashboard({ token, user, onLogout, theme, onThemeToggle }) {
                     <p className="mt-1 text-lg font-black">{user.full_name}</p>
                     <p className="text-sm text-white/72">{roleLabels[user.role]} erişimi aktif</p>
                   </div>
-                  <button className="hero-action-button" type="button" onClick={onLogout}>
-                    <LogOut size={16} />
-                    Çıkış yap
-                  </button>
                 </div>
               </div>
             </div>
