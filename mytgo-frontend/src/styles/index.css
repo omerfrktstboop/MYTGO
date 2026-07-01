@@ -150,20 +150,21 @@ input:focus, textarea:focus, select:focus {
   height: 3.25rem;
   width: 3.25rem;
   place-items: center;
-  border-radius: 1.25rem;
-  background:
-    radial-gradient(circle at 30% 28%, rgba(255,255,255,0.38), transparent 28%),
-    linear-gradient(145deg, #7f1d1d 0%, #dc2626 42%, #f87171 100%);
+  border-radius: 1rem;
+  background: linear-gradient(145deg, #b91c1c 0%, #dc2626 55%, #ef4444 100%);
+  border: 1px solid rgba(255,255,255,0.14);
   color: #fff;
   box-shadow:
     0 10px 26px rgba(153,27,27,0.34),
-    inset 0 1px 0 rgba(255,255,255,0.22);
+    inset 0 1px 0 rgba(255,255,255,0.14);
   overflow: hidden;
 }
 
 .logo-mark__svg {
-  width: 2.05rem;
-  height: 2.05rem;
+  width: 2rem;
+  height: 2rem;
+  color: #fff;
+  stroke-width: 2.25;
   filter: drop-shadow(0 2px 6px rgba(127,29,29,0.18));
 }
 

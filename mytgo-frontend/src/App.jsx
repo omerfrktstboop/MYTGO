@@ -23,7 +23,7 @@ import {
   Wrench,
   X,
 } from "lucide-react";
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { CircleMarker, MapContainer, Polyline, Popup, TileLayer } from "react-leaflet";
 
 import {
@@ -1330,51 +1330,10 @@ function StatusTimeline({ steps }) {
 }
 
 function BrandLogo({ compact = false }) {
-  const logoShineId = useId();
-
   return (
     <div className="flex items-center gap-3">
       <span className="logo-mark" aria-hidden="true">
-        <svg className="logo-mark__svg" viewBox="0 0 64 64" focusable="false">
-          <defs>
-            <linearGradient id={logoShineId} x1="12" y1="8" x2="52" y2="56" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stopColor="#ffffff" stopOpacity="0.98" />
-              <stop offset="46%" stopColor="#fee2e2" stopOpacity="0.85" />
-              <stop offset="100%" stopColor="#fca5a5" stopOpacity="0.9" />
-            </linearGradient>
-          </defs>
-          <circle cx="32" cy="32" r="28" fill={`url(#${logoShineId})`} opacity="0.14" />
-          <path
-            d="M16 35.5C16 26.9 23 20 31.6 20h5.9c7.4 0 13.4 5.9 13.4 13.3v4.2"
-            fill="none"
-            stroke="currentColor"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="3.4"
-          />
-          <path
-            d="M20.5 35h23.6c3.9 0 7.1 3.1 7.1 7v1.1H17.6V42c0-3.9 3.1-7 6.9-7Z"
-            fill="none"
-            stroke="currentColor"
-            strokeLinejoin="round"
-            strokeWidth="3.4"
-          />
-          <path
-            d="M24.5 44.2a2.9 2.9 0 1 0 0 5.8 2.9 2.9 0 0 0 0-5.8Zm16 0a2.9 2.9 0 1 0 0 5.8 2.9 2.9 0 0 0 0-5.8Z"
-            fill="currentColor"
-          />
-          <path
-            d="M33.7 19.2 29 29.9h5.6l-2 15.1 10-16.2h-5.8l2.9-9.6Z"
-            fill="currentColor"
-          />
-          <path
-            d="M23.7 26.4h9.8"
-            stroke="#ffffff"
-            strokeLinecap="round"
-            strokeWidth="2.4"
-            opacity="0.9"
-          />
-        </svg>
+        <CarFront className="logo-mark__svg" focusable="false" />
       </span>
       {!compact && (
         <span>
