@@ -28,20 +28,17 @@ from app.services.telegram_ai import generate_ai_reply
 
 HELP_TEXT = (
     "Merhaba! Ben MYTGO asistanıyım.\n"
-    "Normal sorulara cevap veririm, ama eylem tarafında sadece MYTGO için kod yazar ve deploy ederim.\n"
+    "Normal sorulara cevap veririm; MYTGO tarafında geliştirme, kod, test, push ve deploy konularında yardımcı olurum.\n"
     "• Kod değişikliği: 'şu hatayı düzelt', 'yeni buton ekle'\n"
     "• Test çalıştırma: 'testleri koş', 'pytest çalıştır'\n"
     "• GitHub işlemleri: 'GitHub'a pushla', 'değişiklikleri gönder'\n"
-    "• Deploy: 'canlıya al', 'deploy et'\n"
-    "\n"
-    "Ama 'uygulamayı durdur', 'sunucuyu restart et' gibi operasyonel işleri yapmam."
+    "• Deploy: 'canlıya al', 'deploy et'"
 )
 
 START_TEXT = (
     "Selam! 👋\n"
     "Ben MYTGO asistanıyım.\n"
-    "Sorularını cevaplarım; eylem tarafında ise sadece MYTGO kodunu değiştirir, test eder ve deploy ederim.\n"
-    "Sunucu durdurma/restart gibi operasyonel işlemleri yapmam."
+    "Sorularını cevaplarım; MYTGO tarafında geliştirme konularında yardımcı olurum."
 )
 
 AUTH_PROMPT_TEXT = (

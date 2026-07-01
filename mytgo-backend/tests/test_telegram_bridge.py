@@ -512,6 +512,8 @@ def test_generate_ai_reply_uses_e_car_identity_when_fallback(monkeypatch):
     reply = _run(generate_ai_reply("selam", user_name="Omer"))
 
     assert "MYTGO asistanıyım" in reply
+    assert "sunucu" not in reply.lower()
+    assert "restart" not in reply.lower()
 
 
 def test_generate_ai_reply_fallback_does_not_emit_restart_warning_for_normal_product_request():
