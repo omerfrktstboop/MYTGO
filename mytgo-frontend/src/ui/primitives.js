@@ -1,11 +1,9 @@
 import React from "react";
 import { LoaderCircle } from "lucide-react";
 
-const h = React.createElement;
+import cn from "../utils/cn.js";
 
-function cn(...parts) {
-  return parts.filter(Boolean).join(" ");
-}
+const h = React.createElement;
 
 const buttonVariants = {
   primary:

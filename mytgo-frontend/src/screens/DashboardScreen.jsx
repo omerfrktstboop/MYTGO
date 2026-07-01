@@ -7,6 +7,7 @@ import { EmptyState, BrandLogo } from "../dashboard/shared.jsx";
 import { Badge, Button, Card, Skeleton, ThemeToggle } from "../ui/system.js";
 import { DashboardProvider, useDashboard } from "../state/dashboard.jsx";
 import { useSession } from "../state/session.jsx";
+import { useToast } from "../state/toast.jsx";
 
 const sectionLoaders = {
   vehicles: lazy(() => import("./panels/VehiclesPanel.jsx")),
@@ -46,9 +47,11 @@ function SectionBody({ section }) {
   }
 
   return (
-    <Suspense fallback={<PanelLoading />}>
-      <Panel />
-    </Suspense>
+    <div className="animate-fade-in">
+      <Suspense fallback={<PanelLoading />}>
+        <Panel />
+      </Suspense>
+    </div>
   );
 }
 
@@ -56,7 +59,8 @@ function DashboardShell() {
   const navigate = useNavigate();
   const { section } = useParams();
   const { user, logout } = useSession();
-  const { notice, error, unreadNotificationCount } = useDashboard();
+  const { unreadNotificationCount } = useDashboard();
+  const { success } = useToast();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const menuItems = navByRole[user.role] ?? [];
@@ -190,7 +194,7 @@ function DashboardShell() {
                 </div>
                 <p className="text-xs font-bold uppercase tracking-[0.24em] text-white/80">İlgili işlem</p>
                 <h1 className="mt-2 max-w-2xl text-3xl font-black leading-tight sm:text-4xl">{currentItem?.label}</h1>
-                <p className="mt-3 max-w-2xl text-sm text-white/78 sm:text-base">{currentDescription}</p>
+                <p className="mt-3 max-w-2xl truncate text-sm text-white/78 sm:text-base">{currentDescription}</p>
               </div>
 
               <div className="hidden shrink-0 flex-col items-end gap-2 sm:flex">
@@ -222,18 +226,6 @@ function DashboardShell() {
             </div>
           </div>
         </header>
-
-        {(notice || error) ? (
-          <p
-            className={`mt-4 rounded-2xl px-4 py-3 text-sm ${
-              error
-                ? "border border-red-200 bg-red-50 text-red-700 dark:border-red-900/40 dark:bg-red-950/40 dark:text-red-200"
-                : "border border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-900/40 dark:bg-amber-950/40 dark:text-amber-200"
-            }`}
-          >
-            {error || notice}
-          </p>
-        ) : null}
 
         <div className="py-6">
           <SectionBody section={currentSection} />

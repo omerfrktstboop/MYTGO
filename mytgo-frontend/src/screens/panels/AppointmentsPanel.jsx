@@ -10,7 +10,7 @@ import {
   serviceLabels,
   statusLabels,
 } from "../../appDetails.js";
-import { Button } from "../../ui/system.js";
+import { Button, Input } from "../../ui/system.js";
 import { CardGrid, DetailRows, EmptyState, InfoCard, Panel, StatusTimeline } from "../../dashboard/shared.jsx";
 
 function AppointmentList({ appointments, onApproveQuote }) {
@@ -126,16 +126,14 @@ function CustomerAppointments() {
         </label>
         <label className="grid gap-1.5 text-sm font-medium text-slate-700 dark:text-slate-200">
           <span>Adres</span>
-          <input
-            className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none transition focus:border-red-500 focus:ring-4 focus:ring-red-500/10 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-50"
+          <Input
             value={form.service_address}
             onChange={(event) => setForm({ ...form, service_address: event.target.value })}
           />
         </label>
         <label className="grid gap-1.5 text-sm font-medium text-slate-700 dark:text-slate-200">
           <span>Not</span>
-          <input
-            className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none transition focus:border-red-500 focus:ring-4 focus:ring-red-500/10 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-50"
+          <Input
             value={form.notes}
             onChange={(event) => setForm({ ...form, notes: event.target.value })}
           />
@@ -228,11 +226,10 @@ function MechanicAppointments() {
               <form className="mt-3 grid gap-3" onSubmit={(event) => sendQuote(event, appointment.id)}>
                 <label className="grid gap-1.5 text-sm font-medium text-slate-700 dark:text-slate-200">
                   <span>Teklif (₺)</span>
-                  <input
+                  <Input
                     min="0"
                     step="1"
                     type="number"
-                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none transition focus:border-red-500 focus:ring-4 focus:ring-red-500/10 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-50"
                     value={quoteForms[appointment.id]?.amount ?? ""}
                     onChange={(event) => updateQuoteForm(appointment.id, "amount", event.target.value)}
                     required
@@ -240,8 +237,7 @@ function MechanicAppointments() {
                 </label>
                 <label className="grid gap-1.5 text-sm font-medium text-slate-700 dark:text-slate-200">
                   <span>Teklif notu</span>
-                  <input
-                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none transition focus:border-red-500 focus:ring-4 focus:ring-red-500/10 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-50"
+                  <Input
                     value={quoteForms[appointment.id]?.notes ?? ""}
                     onChange={(event) => updateQuoteForm(appointment.id, "notes", event.target.value)}
                     placeholder="Parça + işçilik dahil"

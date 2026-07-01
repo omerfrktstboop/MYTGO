@@ -5,6 +5,7 @@ import { useDashboard } from "../../state/dashboard.jsx";
 import { apiRequest } from "../../services/apiClient";
 import { createRealtimeSocket } from "../../services/realtime.js";
 import { Panel, EmptyState } from "../../dashboard/shared.jsx";
+import { Input } from "../../ui/system.js";
 
 export default function ChatPanel() {
   const { token, user, conversations } = useDashboard();
@@ -87,8 +88,7 @@ export default function ChatPanel() {
             ))}
           </div>
           <form className="mt-3 flex gap-2" onSubmit={send}>
-            <input
-              className="min-h-11 flex-1 rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none transition focus:border-red-500 focus:ring-4 focus:ring-red-500/10 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-50"
+            <Input
               value={content}
               onChange={(event) => setContent(event.target.value)}
             />

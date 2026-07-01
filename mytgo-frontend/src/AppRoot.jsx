@@ -5,6 +5,7 @@ import DashboardScreen from "./screens/DashboardScreen.jsx";
 import LoginScreen from "./screens/LoginScreen.jsx";
 import { DashboardProvider } from "./state/dashboard.jsx";
 import { SessionProvider, useSession } from "./state/session.jsx";
+import { ToastProvider } from "./state/toast.jsx";
 import { defaultSectionByRole } from "./dashboard/config.js";
 import { ShellFrame } from "./dashboard/shared.jsx";
 
@@ -44,13 +45,15 @@ export default function AppRoot() {
   return (
     <BrowserRouter>
       <SessionProvider>
-        <Routes>
-          <Route path="/" element={<DashboardEntry />} />
-          <Route path="/login" element={<LoginScreen />} />
-          <Route path="/app" element={<DashboardEntry />} />
-          <Route path="/app/:section" element={<DashboardRoute />} />
-          <Route path="*" element={<DashboardEntry />} />
-        </Routes>
+        <ToastProvider>
+          <Routes>
+            <Route path="/" element={<DashboardEntry />} />
+            <Route path="/login" element={<LoginScreen />} />
+            <Route path="/app" element={<DashboardEntry />} />
+            <Route path="/app/:section" element={<DashboardRoute />} />
+            <Route path="*" element={<DashboardEntry />} />
+          </Routes>
+        </ToastProvider>
       </SessionProvider>
     </BrowserRouter>
   );

@@ -4,7 +4,7 @@ import { CarFront, Plus } from "lucide-react";
 import { useDashboard } from "../../state/dashboard.jsx";
 import { apiRequest } from "../../services/apiClient";
 import { ServiceHistoryLoader } from "../../serviceHistory.js";
-import { Button, VehicleListSkeleton } from "../../ui/system.js";
+import { Button, Input, VehicleListSkeleton } from "../../ui/system.js";
 import { CardGrid, EmptyState, InfoCard, Panel } from "../../dashboard/shared.jsx";
 
 export default function VehiclesPanel() {
@@ -35,8 +35,7 @@ export default function VehiclesPanel() {
       <form className="grid gap-3 sm:grid-cols-4" onSubmit={submit}>
         <label className="grid gap-1.5 text-sm font-medium text-slate-700 dark:text-slate-200">
           <span>Plaka</span>
-          <input
-            className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none transition focus:border-red-500 focus:ring-4 focus:ring-red-500/10 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-50"
+          <Input
             value={form.plate_number}
             onChange={(event) => setForm({ ...form, plate_number: event.target.value })}
             required
@@ -44,8 +43,7 @@ export default function VehiclesPanel() {
         </label>
         <label className="grid gap-1.5 text-sm font-medium text-slate-700 dark:text-slate-200">
           <span>Marka</span>
-          <input
-            className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none transition focus:border-red-500 focus:ring-4 focus:ring-red-500/10 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-50"
+          <Input
             value={form.brand}
             onChange={(event) => setForm({ ...form, brand: event.target.value })}
             required
@@ -53,8 +51,7 @@ export default function VehiclesPanel() {
         </label>
         <label className="grid gap-1.5 text-sm font-medium text-slate-700 dark:text-slate-200">
           <span>Model</span>
-          <input
-            className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none transition focus:border-red-500 focus:ring-4 focus:ring-red-500/10 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-50"
+          <Input
             value={form.model}
             onChange={(event) => setForm({ ...form, model: event.target.value })}
             required
@@ -62,9 +59,8 @@ export default function VehiclesPanel() {
         </label>
         <label className="grid gap-1.5 text-sm font-medium text-slate-700 dark:text-slate-200">
           <span>Yıl</span>
-          <input
+          <Input
             type="number"
-            className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none transition focus:border-red-500 focus:ring-4 focus:ring-red-500/10 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-50"
             value={form.year}
             onChange={(event) => setForm({ ...form, year: event.target.value })}
           />

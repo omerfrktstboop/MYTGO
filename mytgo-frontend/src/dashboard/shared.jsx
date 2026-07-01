@@ -2,10 +2,7 @@ import React from "react";
 import { Activity, CarFront, Sparkles } from "lucide-react";
 
 import { Badge, Button, Card } from "../ui/system.js";
-
-function cn(...parts) {
-  return parts.filter(Boolean).join(" ");
-}
+import cn from "../utils/cn.js";
 
 export function BrandLogo({ compact = false }) {
   return (

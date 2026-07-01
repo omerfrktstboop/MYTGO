@@ -9,7 +9,7 @@ import {
   serviceLabels,
   statusLabels,
 } from "../../appDetails.js";
-import { Button } from "../../ui/system.js";
+import { Button, Input } from "../../ui/system.js";
 import { CardGrid, DetailRows, EmptyState, InfoCard, Panel, StatusTimeline } from "../../dashboard/shared.jsx";
 import TrackingMap from "./TrackingMap.jsx";
 
@@ -71,16 +71,14 @@ export default function ValetPanel() {
           </label>
           <label className="grid gap-1.5 text-sm font-medium text-slate-700 dark:text-slate-200">
             <span>Alış</span>
-            <input
-              className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none transition focus:border-red-500 focus:ring-4 focus:ring-red-500/10 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-50"
+            <Input
               value={form.pickup_address}
               onChange={(event) => setForm({ ...form, pickup_address: event.target.value })}
             />
           </label>
           <label className="grid gap-1.5 text-sm font-medium text-slate-700 dark:text-slate-200">
             <span>Teslim</span>
-            <input
-              className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none transition focus:border-red-500 focus:ring-4 focus:ring-red-500/10 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-50"
+            <Input
               value={form.dropoff_address}
               onChange={(event) => setForm({ ...form, dropoff_address: event.target.value })}
             />
