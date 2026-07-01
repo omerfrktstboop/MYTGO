@@ -709,38 +709,43 @@ input:focus, textarea:focus, select:focus {
 }
 
 .sidebar-back-button {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  border-radius: 1.1rem;
-  border: 1px solid rgba(255,255,255,0.22);
-  background: linear-gradient(135deg, rgba(255,255,255,0.22), rgba(255,255,255,0.08));
-  padding: 0.6rem 0.9rem 0.6rem 0.8rem;
-  color: #ffffff;
+  display: inline-grid;
+  height: 2.9rem;
+  width: 2.9rem;
+  place-items: center;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.55);
+  background: linear-gradient(135deg, rgba(255,255,255,0.98), rgba(255,248,248,0.88));
+  color: var(--ec-red-dark);
   box-shadow:
-    0 10px 26px rgba(127,29,29,0.24),
-    inset 0 1px 0 rgba(255,255,255,0.18);
-  transition: transform 140ms ease, box-shadow 140ms ease, background 140ms ease;
+    0 14px 30px rgba(127,29,29,0.24),
+    0 0 0 1px rgba(255,255,255,0.18),
+    inset 0 1px 0 rgba(255,255,255,0.84);
+  transition: transform 140ms ease, box-shadow 140ms ease, background 140ms ease, color 140ms ease;
 }
 
 .sidebar-back-button:hover {
   transform: translateY(-1px);
-  background: linear-gradient(135deg, rgba(255,255,255,0.28), rgba(255,255,255,0.12));
+  background: linear-gradient(135deg, rgba(255,255,255,1), rgba(254,242,242,0.94));
   box-shadow:
-    0 12px 30px rgba(127,29,29,0.28),
-    inset 0 1px 0 rgba(255,255,255,0.22);
+    0 16px 34px rgba(127,29,29,0.30),
+    0 0 0 1px rgba(255,255,255,0.26),
+    inset 0 1px 0 rgba(255,255,255,0.92);
 }
 
 [data-theme="dark"] .sidebar-back-button {
-  background: linear-gradient(135deg, rgba(239,68,68,0.30), rgba(185,28,28,0.24));
-  border-color: rgba(248,113,113,0.30);
+  background: linear-gradient(135deg, rgba(255,255,255,0.96), rgba(254,242,242,0.88));
+  border-color: rgba(255,255,255,0.55);
+  color: #991b1b;
   box-shadow:
-    0 12px 30px rgba(0,0,0,0.26),
-    inset 0 1px 0 rgba(255,255,255,0.10);
+    0 14px 30px rgba(0,0,0,0.26),
+    0 0 0 1px rgba(255,255,255,0.10),
+    inset 0 1px 0 rgba(255,255,255,0.84);
 }
 
 [data-theme="dark"] .sidebar-back-button:hover {
-  background: linear-gradient(135deg, rgba(239,68,68,0.38), rgba(185,28,28,0.30));
+  background: linear-gradient(135deg, rgba(255,255,255,1), rgba(255,247,247,0.94));
 }
 
 /* ── Auth Kart ── */

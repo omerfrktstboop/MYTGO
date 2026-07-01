@@ -8,7 +8,7 @@ import {
   BatteryCharging,
   CarFront,
   Check,
-  ArrowLeft,
+  ArrowLeftToLine,
   LifeBuoy,
   Layers3,
   MapPin,
@@ -446,7 +446,7 @@ function Dashboard({ token, user, theme, onThemeChange, onLogout }) {
               type="button"
               onClick={() => setSidebarOpen(false)}
             >
-              <ArrowLeft size={18} />
+              <ArrowLeftToLine size={20} strokeWidth={2.4} />
             </button>
           </div>
         </div>
