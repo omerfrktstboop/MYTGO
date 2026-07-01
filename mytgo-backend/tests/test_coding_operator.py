@@ -7,12 +7,12 @@ def test_build_codex_prompt_prefers_main_and_no_pr():
     original_model = settings.codex_model
     original_allowed = settings.codex_allowed_branches
     try:
-        settings.codex_repository_path = "/home/ubuntu/MYTGO/mytgo-backend"
+        settings.codex_repository_path = "/home/ubuntu/E-Cars/mytgo-backend"
         settings.codex_model = "gpt-5.4-mini"
         settings.codex_allowed_branches = ""
 
         request = CodingOperatorRequest(
-            raw_text="MYTGO'da ödeme ekranını düzelt ve canlıya al",
+            raw_text="E-Cars'da ödeme ekranını düzelt ve canlıya al",
             action="deploy",
             summary="ödeme ekranını düzelt ve canlıya al",
             confidence="high",

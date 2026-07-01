@@ -12,7 +12,7 @@ function DashboardEntry() {
   const { booting, isAuthenticated, user } = useSession();
 
   if (booting) {
-    return <ShellFrame title="MYTGO" subtitle="Bağlanıyor..." />;
+    return <ShellFrame title="E-Cars" subtitle="Bağlanıyor..." />;
   }
 
   if (!isAuthenticated || !user) {
@@ -26,7 +26,7 @@ function DashboardRoute() {
   const { booting, isAuthenticated, user } = useSession();
 
   if (booting) {
-    return <ShellFrame title="MYTGO" subtitle="Bağlanıyor..." />;
+    return <ShellFrame title="E-Cars" subtitle="Bağlanıyor..." />;
   }
 
   if (!isAuthenticated || !user) {

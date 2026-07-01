@@ -1,6 +1,6 @@
-# MYTGO
+# E-Cars
 
-MYTGO is a cross-platform vehicle maintenance and valet service MVP built with FastAPI, async SQLite, WebSockets, Vite, React, Tailwind CSS, and Capacitor.
+E-Cars is a cross-platform vehicle maintenance and valet service MVP built with FastAPI, async SQLite, WebSockets, Vite, React, Tailwind CSS, and Capacitor.
 
 ## Backend
 

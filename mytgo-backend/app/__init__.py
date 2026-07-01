@@ -1,1 +1,1 @@
-"""MYTGO backend application package."""
+"""E-Cars backend application package."""

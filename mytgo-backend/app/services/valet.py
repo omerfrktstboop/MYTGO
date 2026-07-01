@@ -1,4 +1,4 @@
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from decimal import Decimal
 
 from fastapi import HTTPException, status
@@ -119,7 +119,7 @@ async def update_transfer_location(
     old_status = transfer.status
     transfer.current_latitude = latitude
     transfer.current_longitude = longitude
-    transfer.last_location_at = datetime.now(UTC)
+    transfer.last_location_at = datetime.now(timezone.utc)
     if transfer.status in (ValetStatus.REQUESTED, ValetStatus.ASSIGNED):
         transfer.status = ValetStatus.PICKING_UP
 

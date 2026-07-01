@@ -1,4 +1,4 @@
-# MYTGO Araç Bazlı Bakım/Servis Geçmişi Spesifikasyonu
+# E-Cars Araç Bazlı Bakım/Servis Geçmişi Spesifikasyonu
 
 Bu doküman, backend ve frontend worker'larının ek soru sormadan TDD ile başlayabilmesi için araç bazlı bakım/servis geçmişi ekranının kapsamını, API sözleşmesini, ekran davranışını ve kabul kriterlerini netleştirir.
 
@@ -34,7 +34,7 @@ Alanlar:
   - `tire`: Lastik
   - `other`: Diğer
 - `odometer_km`: integer, opsiyonel, `>= 0`. Kullanıcıya 'Kilometre' olarak gösterilir.
-- `service_provider`: string, opsiyonel, max 160. Örn. 'MYTGO Sanayi', 'Bosch Car Service'.
+- `service_provider`: string, opsiyonel, max 160. Örn. 'E-Cars Sanayi', 'Bosch Car Service'.
 - `description`: text, opsiyonel. Kullanıcıya 'Açıklama/Not' olarak gösterilir.
 - `cost_amount_cents`: integer, opsiyonel, `>= 0`. Para tutarı kuruş/cent cinsinden saklanır.
 - `cost_currency`: string, opsiyonel ama `cost_amount_cents` varsa zorunlu. Varsayılan `TRY`. ISO-4217 üç harf formatı beklenir.
@@ -84,7 +84,7 @@ Başarılı yanıt: `200 OK`
   "vehicle": {
     "id": 1,
     "owner_id": 1,
-    "plate_number": "34MYTGO34",
+    "plate_number": "34E-Cars34",
     "brand": "Toyota",
     "model": "Corolla",
     "year": 2020
@@ -96,7 +96,7 @@ Başarılı yanıt: `200 OK`
       "service_date": "2026-06-20T09:00:00Z",
       "operation_type": "maintenance",
       "odometer_km": 45200,
-      "service_provider": "MYTGO Sanayi",
+      "service_provider": "E-Cars Sanayi",
       "description": "Yağ, filtre ve genel kontrol yapıldı.",
       "cost_amount_cents": 325000,
       "cost_currency": "TRY",
@@ -147,7 +147,7 @@ Request body:
   "service_date": "2026-06-20T09:00:00Z",
   "operation_type": "maintenance",
   "odometer_km": 45200,
-  "service_provider": "MYTGO Sanayi",
+  "service_provider": "E-Cars Sanayi",
   "description": "Yağ, filtre ve genel kontrol yapıldı.",
   "cost_amount_cents": 325000,
   "cost_currency": "TRY"
@@ -214,7 +214,7 @@ Her servis geçmişi kartında gösterilecek alanlar:
   - Servis sağlayıcı: değer veya `Servis sağlayıcı yok`.
   - Not: değer veya `Not yok`.
   - Maliyet: `₺3.250` veya `Maliyet girilmedi`.
-  - Oluşturan: ad/rol biliniyorsa `MYTGO Customer (Müşteri)`, değilse `#1`.
+  - Oluşturan: ad/rol biliniyorsa `E-Cars Customer (Müşteri)`, değilse `#1`.
   - Güncelleyen: değer yoksa `Henüz güncellenmedi`.
   - Oluşturulma/Güncellenme: `tr-TR` tarih/saat formatı.
 

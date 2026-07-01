@@ -1,4 +1,4 @@
-name: MYTGO Auto Deploy
+name: E-Cars Auto Deploy
 
 "on":
   push:
@@ -24,4 +24,4 @@ jobs:
 
       - name: Deploy live application from main
         run: |
-          /bin/bash /home/ubuntu/MYTGO/scripts/deploy_mytgo_from_main.sh origin/main
+          /bin/bash /home/ubuntu/E-Cars/scripts/deploy_mytgo_from_main.sh origin/main

@@ -10,10 +10,10 @@ except ImportError:  # pragma: no cover - graceful fallback when SDK is unavaila
 from app.core.config import settings
 
 _AI_SYSTEM_PROMPT = (
-    "Sen MYTGO için çalışan kısa, doğal ve yardımsever bir Telegram asistanısın. "
+    "Sen E-Cars için çalışan kısa, doğal ve yardımsever bir Telegram asistanısın. "
     "Cevapların Türkçe, kısa ve net olsun. "
     "Normal sorulara doğal şekilde cevap ver. "
-    "MYTGO tarafında geliştirme, kod, test, push ve deploy konularında yardımcı ol. "
+    "E-Cars tarafında geliştirme, kod, test, push ve deploy konularında yardımcı ol. "
     "Kullanıcı açıkça operasyonel bir işlem isterse — örneğin uygulamayı durdurma, sunucuyu restart etme, servis kapatma — bunu kısa şekilde reddet. "
     "Kullanıcı sormadıkça yapamadığın şeyleri kendiliğinden anlatma. "
     "Kullanıcı selam verirse sıcak bir şekilde karşılık ver ve yardım odağını kısa söyle."
@@ -42,10 +42,10 @@ def _looks_like_greeting(text: str) -> bool:
 def _fallback_reply(message_text: str) -> str:
     normalized = _normalize_text(message_text)
     if _looks_like_greeting(message_text):
-        return "Selam! Ben MYTGO asistanıyım. Sorularını cevaplayabilir, MYTGO tarafında geliştirme konularında yardımcı olabilirim."
+        return "Selam! Ben E-Cars asistanıyım. Sorularını cevaplayabilir, E-Cars tarafında geliştirme konularında yardımcı olabilirim."
     if any(token in normalized for token in ("restart", "yeniden başlat", "yeniden baslat", "durdur", "stop", "kapat")):
-        return "Bu operasyonel işlemi yapamam. İstersen MYTGO tarafında kod, test, push veya deploy konusunda yardımcı olayım."
-    return "Ne istediğini anladım. İstersen bunu MYTGO tarafında net bir görev olarak biraz daha açabilirsin."
+        return "Bu operasyonel işlemi yapamam. İstersen E-Cars tarafında kod, test, push veya deploy konusunda yardımcı olayım."
+    return "Ne istediğini anladım. İstersen bunu E-Cars tarafında net bir görev olarak biraz daha açabilirsin."
 
 
 def _extract_openai_text(response: object) -> str:

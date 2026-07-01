@@ -28,8 +28,8 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="MYTGO API",
-    description="MYTGO vehicle maintenance, valet tracking, and service communication API.",
+    title="E-Cars API",
+    description="E-Cars vehicle maintenance, valet tracking, and service communication API.",
     version="0.1.0",
     docs_url="/docs",
     redoc_url="/redoc",
@@ -49,7 +49,7 @@ app.add_middleware(RequestLoggingMiddleware)
 
 @app.get("/health", tags=["system"])
 async def health_check() -> dict[str, str]:
-    return {"status": "ok", "app": "MYTGO"}
+    return {"status": "ok", "app": "E-Cars"}
 
 
 app.include_router(api_router, prefix="/api/v1")

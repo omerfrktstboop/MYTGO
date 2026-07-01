@@ -29,7 +29,7 @@ export async function apiRequest(path, options = {}) {
   });
 
   if (!response.ok) {
-    let detail = `MYTGO API request failed with status ${response.status}`;
+    let detail = `E-Cars API request failed with status ${response.status}`;
     try {
       const payload = await response.json();
       detail = payload.detail ?? detail;

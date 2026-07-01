@@ -51,7 +51,7 @@ async def _telegram_request(
     timeout_seconds: float | None = None,
 ) -> dict[str, Any]:
     if not settings.telegram_bot_token:
-        raise RuntimeError("MYTGO_TELEGRAM_BOT_TOKEN is not configured")
+        raise RuntimeError("E-Cars_TELEGRAM_BOT_TOKEN is not configured")
 
     url = f"{settings.telegram_api_base_url.rstrip('/')}/bot{settings.telegram_bot_token}/{method}"
     client_timeout = timeout_seconds if timeout_seconds is not None else settings.telegram_request_timeout_seconds

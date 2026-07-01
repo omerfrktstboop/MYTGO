@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import UTC, date, datetime, time
+from datetime import date, datetime, time, timezone
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from fastapi import HTTPException, status
@@ -123,7 +123,7 @@ def resolve_report_range(
 
 
 def _to_db_datetime(value: datetime) -> datetime:
-    return value.astimezone(UTC).replace(tzinfo=None)
+    return value.astimezone(timezone.utc).replace(tzinfo=None)
 
 
 def _iso_seconds(value: datetime) -> str:

@@ -1,9 +1,9 @@
 import os
 
-os.environ["MYTGO_DATABASE_URL"] = "sqlite+aiosqlite:///./test_mytgo.db"
-os.environ["MYTGO_JWT_SECRET_KEY"] = "test-secret"
-os.environ["MYTGO_TELEGRAM_BOT_TOKEN"] = "test-bot-token"
-os.environ["MYTGO_TELEGRAM_WEBHOOK_SECRET_TOKEN"] = "bridge-secret"
+os.environ["E-Cars_DATABASE_URL"] = "sqlite+aiosqlite:///./test_mytgo.db"
+os.environ["E-Cars_JWT_SECRET_KEY"] = "test-secret"
+os.environ["E-Cars_TELEGRAM_BOT_TOKEN"] = "test-bot-token"
+os.environ["E-Cars_TELEGRAM_WEBHOOK_SECRET_TOKEN"] = "bridge-secret"
 
 from app.core.config import settings  # noqa: E402
 from scripts.setup_telegram_webhook import set_webhook  # noqa: E402

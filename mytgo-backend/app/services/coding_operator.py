@@ -127,7 +127,7 @@ def build_codex_prompt(request: CodingOperatorRequest) -> str:
     repo_path = Path(settings.codex_repository_path).expanduser()
     allowed_branches = settings.codex_allowed_branches.strip() or "main"
     return (
-        "Sen Codex CLI ile çalışan bir MYTGO kod operatörüsün.\n"
+        "Sen Codex CLI ile çalışan bir E-Cars kod operatörüsün.\n"
         f"Repo yolu: {repo_path}\n"
         f"Tercih edilen model: {settings.codex_model}\n"
         f"İzinli branch politikası: {allowed_branches}\n"

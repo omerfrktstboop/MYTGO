@@ -10,10 +10,10 @@ from app.models.enums import UserRole
 from app.models.user import User
 
 DEMO_USERS = [
-    ("customer@mytgo.local", "MYTGO Customer", UserRole.CUSTOMER),
-    ("mechanic@mytgo.local", "MYTGO Mechanic", UserRole.MECHANIC),
-    ("valet@mytgo.local", "MYTGO Valet", UserRole.VALET),
-    ("admin@mytgo.local", "MYTGO Admin", UserRole.ADMIN),
+    ("customer@mytgo.local", "E-Cars Customer", UserRole.CUSTOMER),
+    ("mechanic@mytgo.local", "E-Cars Mechanic", UserRole.MECHANIC),
+    ("valet@mytgo.local", "E-Cars Valet", UserRole.VALET),
+    ("admin@mytgo.local", "E-Cars Admin", UserRole.ADMIN),
 ]
 
 

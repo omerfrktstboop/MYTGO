@@ -1,4 +1,4 @@
-"""SQLAlchemy models for MYTGO domain entities.
+"""SQLAlchemy models for E-Cars domain entities.
 
 Import all model modules so SQLAlchemy relationship strings can resolve
 correctly as soon as app.models is imported.

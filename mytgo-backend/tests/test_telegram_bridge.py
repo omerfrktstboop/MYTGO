@@ -2,8 +2,8 @@ import asyncio
 import os
 from pathlib import Path
 
-os.environ["MYTGO_DATABASE_URL"] = "sqlite+aiosqlite:///./test_mytgo.db"
-os.environ["MYTGO_JWT_SECRET_KEY"] = "test-secret"
+os.environ["E-Cars_DATABASE_URL"] = "sqlite+aiosqlite:///./test_mytgo.db"
+os.environ["E-Cars_JWT_SECRET_KEY"] = "test-secret"
 
 from fastapi.testclient import TestClient  # noqa: E402
 from sqlalchemy import select  # noqa: E402
@@ -233,7 +233,7 @@ def test_telegram_webhook_falls_back_to_default_user_map_for_authenticated_user(
         )
 
     assert response.status_code == 200, response.text
-    assert response.json()["reply_text"] == f"MYTGO kullanıcı: Omer (#{user_id}, customer)"
+    assert response.json()["reply_text"] == f"E-Cars kullanıcı: Omer (#{user_id}, customer)"
     assert sent_messages == [(12345, response.json()["reply_text"])]
 
 
@@ -243,7 +243,7 @@ def test_telegram_webhook_routes_coding_request(monkeypatch):
     settings.telegram_webhook_secret_token = "bridge-secret"
     settings.telegram_allowed_chat_ids = "12345"
     settings.telegram_allowed_user_ids = "42"
-    settings.codex_repository_path = "/home/ubuntu/MYTGO/mytgo-backend"
+    settings.codex_repository_path = "/home/ubuntu/E-Cars/mytgo-backend"
     settings.codex_model = "gpt-5.4-mini"
     settings.codex_allowed_branches = "feature/*"
 
@@ -548,7 +548,7 @@ def test_generate_ai_reply_uses_e_car_identity_when_fallback(monkeypatch):
 
     reply = _run(generate_ai_reply("selam", user_name="Omer"))
 
-    assert "MYTGO asistanıyım" in reply
+    assert "E-Cars asistanıyım" in reply
     assert "sunucu" not in reply.lower()
     assert "restart" not in reply.lower()
 
@@ -601,7 +601,7 @@ def test_telegram_webhook_refuses_operational_restart_requests(monkeypatch):
 
 
 def test_coding_operator_prompt_builds_with_model_and_repo():
-    settings.codex_repository_path = "/home/ubuntu/MYTGO/mytgo-backend"
+    settings.codex_repository_path = "/home/ubuntu/E-Cars/mytgo-backend"
     settings.codex_model = "gpt-5.4-mini"
     settings.codex_allowed_branches = "feature/*"
 
@@ -609,7 +609,7 @@ def test_coding_operator_prompt_builds_with_model_and_repo():
     assert request is not None
     prompt = build_codex_prompt(request)
 
-    assert "/home/ubuntu/MYTGO/mytgo-backend" in prompt
+    assert "/home/ubuntu/E-Cars/mytgo-backend" in prompt
     assert "gpt-5.4-mini" in prompt
     assert "GitHub'a pushla ve canlıya al" in prompt
     assert "deploy" in prompt

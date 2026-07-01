@@ -1,4 +1,4 @@
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 
 from fastapi import HTTPException, status
 from sqlalchemy import func, select
@@ -35,7 +35,7 @@ async def mark_notification_read(db: AsyncSession, user: User, notification_id: 
     if notification is None or notification.user_id != user.id:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Notification not found")
     if notification.read_at is None:
-        notification.read_at = datetime.now(UTC)
+        notification.read_at = datetime.now(timezone.utc)
         await db.commit()
         await db.refresh(notification)
     return notification

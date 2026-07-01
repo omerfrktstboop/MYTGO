@@ -1,8 +1,8 @@
 import os
 from pathlib import Path
 
-os.environ["MYTGO_DATABASE_URL"] = "sqlite+aiosqlite:///./test_premium_fleet.db"
-os.environ["MYTGO_JWT_SECRET_KEY"] = "test-secret"
+os.environ["E-Cars_DATABASE_URL"] = "sqlite+aiosqlite:///./test_premium_fleet.db"
+os.environ["E-Cars_JWT_SECRET_KEY"] = "test-secret"
 
 from fastapi.testclient import TestClient  # noqa: E402
 
@@ -78,7 +78,7 @@ def test_premium_subscription_prioritizes_customer_appointments():
             json={
                 "vehicle_id": vehicle_response.json()["id"],
                 "service_type": "repair",
-                "service_address": "MYTGO Premium Kapı",
+                "service_address": "E-Cars Premium Kapı",
                 "notes": "Premium hızlı servis",
             },
         )
@@ -111,7 +111,7 @@ def test_admin_fleet_summary_reports_enterprise_revenue_and_vehicle_counts():
             "/api/v1/premium/fleet-accounts",
             headers=auth_headers(admin["access_token"]),
             json={
-                "company_name": "MYTGO Lojistik",
+                "company_name": "E-Cars Lojistik",
                 "manager_user_id": customer["user"]["id"],
                 "vehicle_ids": [vehicle_response.json()["id"]],
                 "monthly_price_cents": 1299900,
@@ -120,7 +120,7 @@ def test_admin_fleet_summary_reports_enterprise_revenue_and_vehicle_counts():
         )
         assert fleet_response.status_code == 201, fleet_response.text
         fleet = fleet_response.json()
-        assert fleet["company_name"] == "MYTGO Lojistik"
+        assert fleet["company_name"] == "E-Cars Lojistik"
         assert fleet["vehicle_count"] == 1
 
         summary_response = client.get(

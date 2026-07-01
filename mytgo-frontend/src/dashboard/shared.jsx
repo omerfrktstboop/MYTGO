@@ -15,7 +15,7 @@ export function BrandLogo({ compact = false }) {
       </span>
       {!compact ? (
         <span className="brand-wordmark">
-          <span className="block text-2xl font-black tracking-tight text-white">MYTGO</span>
+          <span className="block text-2xl font-black tracking-tight text-white">E-Cars</span>
           <span className="brand-wordmark-caret" aria-hidden="true" />
         </span>
       ) : null}
@@ -33,7 +33,7 @@ export function ShellFrame({ title, subtitle, themeToggle, children }) {
             Aracını servis, vale ve chat ile tek panelden yönet.
           </h1>
           <p className="mt-5 max-w-lg text-lg text-white/76">
-            Canlı konum takibi, randevu akışı ve rol bazlı operasyonlar için modern MYTGO deneyimi.
+            Canlı konum takibi, randevu akışı ve rol bazlı operasyonlar için modern E-Cars deneyimi.
           </p>
         </div>
         <div className="auth-card rounded-[2rem] border border-white/70 bg-white/88 p-5 shadow-soft backdrop-blur sm:p-7 dark:border-slate-800 dark:bg-slate-950/80">

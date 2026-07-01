@@ -1,10 +1,10 @@
 import asyncio
 import os
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
-os.environ["MYTGO_DATABASE_URL"] = "sqlite+aiosqlite:///./test_admin_reports.db"
-os.environ["MYTGO_JWT_SECRET_KEY"] = "test-secret"
+os.environ["E-Cars_DATABASE_URL"] = "sqlite+aiosqlite:///./test_admin_reports.db"
+os.environ["E-Cars_JWT_SECRET_KEY"] = "test-secret"
 
 from fastapi.testclient import TestClient  # noqa: E402
 
@@ -53,8 +53,8 @@ async def seed_report_data() -> dict[str, User]:
         db.add(vehicle)
         await db.flush()
 
-        in_range = datetime(2026, 6, 10, 9, 0, tzinfo=UTC)
-        out_of_range = datetime(2026, 5, 25, 9, 0, tzinfo=UTC)
+        in_range = datetime(2026, 6, 10, 9, 0, tzinfo=timezone.utc)
+        out_of_range = datetime(2026, 5, 25, 9, 0, tzinfo=timezone.utc)
         appointments = [
             Appointment(customer_id=customer.id, vehicle_id=vehicle.id, mechanic_id=None, service_type=ServiceType.REPAIR, status=AppointmentStatus.PENDING, quote_amount_cents=None, created_at=in_range, updated_at=in_range),
             Appointment(customer_id=customer.id, vehicle_id=vehicle.id, mechanic_id=mechanic.id, service_type=ServiceType.REPAIR, status=AppointmentStatus.QUOTE_SENT, quote_amount_cents=420000, created_at=in_range, updated_at=in_range),

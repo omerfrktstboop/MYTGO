@@ -1,33 +1,33 @@
-# MYTGO Telegram Bridge
+# E-Cars Telegram Bridge
 
 ## Endpointler
 - `POST /api/v1/integrations/telegram/webhook`
 - `GET /api/v1/integrations/telegram/health`
 
 ## Gerekli env değişkenleri
-- `MYTGO_TELEGRAM_BOT_TOKEN`
-- `MYTGO_TELEGRAM_WEBHOOK_SECRET_TOKEN`
-- `MYTGO_TELEGRAM_ALLOWED_CHAT_IDS`
-- `MYTGO_TELEGRAM_ALLOWED_USER_IDS`
-- `MYTGO_TELEGRAM_USER_MAP`
+- `E-Cars_TELEGRAM_BOT_TOKEN`
+- `E-Cars_TELEGRAM_WEBHOOK_SECRET_TOKEN`
+- `E-Cars_TELEGRAM_ALLOWED_CHAT_IDS`
+- `E-Cars_TELEGRAM_ALLOWED_USER_IDS`
+- `E-Cars_TELEGRAM_USER_MAP`
 
-## `MYTGO_TELEGRAM_USER_MAP` formatı
-Telegram hesabını MYTGO kullanıcısına bağlamak için kullanılır.
+## `E-Cars_TELEGRAM_USER_MAP` formatı
+Telegram hesabını E-Cars kullanıcısına bağlamak için kullanılır.
 
 Örnek:
 ```bash
-MYTGO_TELEGRAM_USER_MAP="123456789:1,987654321:42"
+E-Cars_TELEGRAM_USER_MAP="123456789:1,987654321:42"
 ```
 
 Bu örnekte:
 - `123456789` Telegram user ID
-- `1` MYTGO `users.id`
+- `1` E-Cars `users.id`
 
 ## Komutlar
 - `/start` — karşılama
 - `/help` — komut listesi
 - `/health` — servis durumu
-- `/me` — eşleşen MYTGO kullanıcısı
+- `/me` — eşleşen E-Cars kullanıcısı
 - `/unread` — okunmamış bildirim sayısı
 - `/notifications [n]` — son bildirimler
 - `/echo <metin>` — test/geri dönüş
@@ -56,6 +56,6 @@ python scripts/setup_telegram_webhook.py delete
 
 ## Güvenlik notları
 - Webhook isteği `X-Telegram-Bot-Api-Secret-Token` ile korunur.
-- `MYTGO_TELEGRAM_ALLOWED_CHAT_IDS` veya `MYTGO_TELEGRAM_ALLOWED_USER_IDS` ile erişim kısıtlanır.
-- Telegram hesabı ile MYTGO kullanıcı eşlemesi yoksa workflow komutları çalışmaz.
+- `E-Cars_TELEGRAM_ALLOWED_CHAT_IDS` veya `E-Cars_TELEGRAM_ALLOWED_USER_IDS` ile erişim kısıtlanır.
+- Telegram hesabı ile E-Cars kullanıcı eşlemesi yoksa workflow komutları çalışmaz.
 - Bot token ve secret değerleri repoya yazılmamalı; env’den okunmalı.

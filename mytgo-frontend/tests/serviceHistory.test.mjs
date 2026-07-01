@@ -12,7 +12,7 @@ import {
 
 const vehicle = {
   id: 7,
-  plate_number: '34MYTGO34',
+  plate_number: '34E-Cars34',
   brand: 'Toyota',
   model: 'Corolla',
   year: 2020,
@@ -25,7 +25,7 @@ const entries = [
     service_date: '2026-06-20T09:00:00Z',
     operation_type: 'maintenance',
     odometer_km: 45200,
-    service_provider: 'MYTGO Sanayi',
+    service_provider: 'E-Cars Sanayi',
     description: 'Yağ, filtre ve genel kontrol yapıldı.',
     cost_amount_cents: 325000,
     cost_currency: 'TRY',
@@ -65,12 +65,12 @@ test('ServiceHistoryPanel renders an accessible loading state', () => {
 test('ServiceHistoryPanel renders vehicle service history records with core fields', () => {
   const html = render({ status: 'success', items: entries });
 
-  assert.match(html, /34MYTGO34/);
+  assert.match(html, /34E-Cars34/);
   assert.match(html, /Toyota Corolla 2020/);
   assert.match(html, /Bakım/);
   assert.match(html, /Tamir/);
   assert.match(html, /45\.200 km/);
-  assert.match(html, /MYTGO Sanayi/);
+  assert.match(html, /E-Cars Sanayi/);
   assert.match(html, /Yağ, filtre ve genel kontrol yapıldı\./);
   assert.match(html, /₺3\.250/);
   assert.match(html, /#1/);

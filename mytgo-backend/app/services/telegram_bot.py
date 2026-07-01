@@ -27,8 +27,8 @@ from app.services.notifications import get_unread_notification_count, list_notif
 from app.services.telegram_ai import generate_ai_reply
 
 HELP_TEXT = (
-    "Merhaba! Ben MYTGO asistanıyım.\n"
-    "Normal sorulara cevap veririm; MYTGO tarafında geliştirme, kod, test, push ve deploy konularında yardımcı olurum.\n"
+    "Merhaba! Ben E-Cars asistanıyım.\n"
+    "Normal sorulara cevap veririm; E-Cars tarafında geliştirme, kod, test, push ve deploy konularında yardımcı olurum.\n"
     "• Kod değişikliği: 'şu hatayı düzelt', 'yeni buton ekle'\n"
     "• Test çalıştırma: 'testleri koş', 'pytest çalıştır'\n"
     "• GitHub işlemleri: 'GitHub'a pushla', 'değişiklikleri gönder'\n"
@@ -37,8 +37,8 @@ HELP_TEXT = (
 
 START_TEXT = (
     "Selam! 👋\n"
-    "Ben MYTGO asistanıyım.\n"
-    "Sorularını cevaplarım; MYTGO tarafında geliştirme konularında yardımcı olurum."
+    "Ben E-Cars asistanıyım.\n"
+    "Sorularını cevaplarım; E-Cars tarafında geliştirme konularında yardımcı olurum."
 )
 
 AUTH_PROMPT_TEXT = (
@@ -314,19 +314,19 @@ async def build_reply_text(db: AsyncSession, message: TelegramMessage) -> str | 
         return (
             "Bu tür operasyonel işlemleri yapamam. "
             "Yani uygulama durdurma, servis restart etme, sunucu yönetimi gibi aksiyonlar bende kapalı. "
-            "İstersen MYTGO için kod değişikliği, test, push veya deploy isteği verebilirsin."
+            "İstersen E-Cars için kod değişikliği, test, push veya deploy isteği verebilirsin."
         )
 
     if command in {"me", "unread", "notifications"}:
         user = await resolve_mytgo_user(db, message)
         if user is None:
             return (
-                "Bu Telegram hesabı için MYTGO kullanıcı eşlemesi yok.\n"
-                "Yönetici `MYTGO_TELEGRAM_USER_MAP` ile eşleştirmeli."
+                "Bu Telegram hesabı için E-Cars kullanıcı eşlemesi yok.\n"
+                "Yönetici `E-Cars_TELEGRAM_USER_MAP` ile eşleştirmeli."
             )
 
         if command == "me":
-            return f"MYTGO kullanıcı: {user.full_name} (#{user.id}, {user.role.value})"
+            return f"E-Cars kullanıcı: {user.full_name} (#{user.id}, {user.role.value})"
 
         if command == "unread":
             unread_count = await get_unread_notification_count(db, user)

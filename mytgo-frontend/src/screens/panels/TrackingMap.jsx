@@ -117,7 +117,7 @@ export default function TrackingMap({ token, transfers, role }) {
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
           <CircleMarker center={position} radius={10} pathOptions={{ color: "#dc2626" }}>
-            <Popup>MYTGO Vale</Popup>
+            <Popup>E-Cars Vale</Popup>
           </CircleMarker>
           <Polyline positions={trail} pathOptions={{ color: "#991b1b", weight: 4 }} />
         </MapContainer>

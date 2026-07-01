@@ -1,8 +1,8 @@
 import os
 from pathlib import Path
 
-os.environ["MYTGO_DATABASE_URL"] = "sqlite+aiosqlite:///./test_mytgo.db"
-os.environ["MYTGO_JWT_SECRET_KEY"] = "test-secret"
+os.environ["E-Cars_DATABASE_URL"] = "sqlite+aiosqlite:///./test_mytgo.db"
+os.environ["E-Cars_JWT_SECRET_KEY"] = "test-secret"
 
 from fastapi.testclient import TestClient  # noqa: E402
 
@@ -49,7 +49,7 @@ def test_mytgo_mvp_http_and_websocket_flow():
             "/api/v1/vehicles",
             headers=auth_headers(customer["access_token"]),
             json={
-                "plate_number": "34MYTGO34",
+                "plate_number": "34E-Cars34",
                 "brand": "Toyota",
                 "model": "Corolla",
                 "year": 2020,
@@ -64,7 +64,7 @@ def test_mytgo_mvp_http_and_websocket_flow():
             json={
                 "vehicle_id": vehicle["id"],
                 "service_type": "repair",
-                "service_address": "MYTGO Sanayi",
+                "service_address": "E-Cars Sanayi",
                 "notes": "Brake check",
             },
         )
@@ -162,7 +162,7 @@ def test_mytgo_mvp_http_and_websocket_flow():
             json={
                 "appointment_id": appointment["id"],
                 "pickup_address": "Customer Home",
-                "dropoff_address": "MYTGO Sanayi",
+                "dropoff_address": "E-Cars Sanayi",
             },
         )
         assert valet_response.status_code == 201, valet_response.text

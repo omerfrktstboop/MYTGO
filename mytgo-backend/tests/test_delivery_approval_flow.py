@@ -2,8 +2,8 @@ import os
 from pathlib import Path
 from uuid import uuid4
 
-os.environ["MYTGO_DATABASE_URL"] = "sqlite+aiosqlite:///./test_mytgo.db"
-os.environ["MYTGO_JWT_SECRET_KEY"] = "test-secret"
+os.environ["E-Cars_DATABASE_URL"] = "sqlite+aiosqlite:///./test_mytgo.db"
+os.environ["E-Cars_JWT_SECRET_KEY"] = "test-secret"
 
 from fastapi.testclient import TestClient  # noqa: E402
 
@@ -53,7 +53,7 @@ def create_appointment(client: TestClient) -> tuple[dict, dict, dict]:
         json={
             "vehicle_id": vehicle_response.json()["id"],
             "service_type": "repair",
-            "service_address": "MYTGO Sanayi",
+            "service_address": "E-Cars Sanayi",
         },
     )
     assert appointment_response.status_code == 201, appointment_response.text

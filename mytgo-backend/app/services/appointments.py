@@ -1,4 +1,4 @@
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 
 from fastapi import HTTPException, status
 from sqlalchemy import select
@@ -155,7 +155,7 @@ async def update_appointment(
             update_data["extra_cost_status"] = ExtraCostStatus.PENDING
 
     if payload.status == AppointmentStatus.APPROVED and payload.digital_approval_name is not None:
-        update_data["digital_approved_at"] = datetime.now(UTC)
+        update_data["digital_approved_at"] = datetime.now(timezone.utc)
 
     if payload.status == AppointmentStatus.COMPLETED and appointment.extra_cost_status == ExtraCostStatus.PENDING:
         raise HTTPException(

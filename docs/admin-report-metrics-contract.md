@@ -1,4 +1,4 @@
-# MYTGO Admin Rapor Paneli - Metrik ve Veri Sözleşmesi
+# E-Cars Admin Rapor Paneli - Metrik ve Veri Sözleşmesi
 
 ## Amaç
 

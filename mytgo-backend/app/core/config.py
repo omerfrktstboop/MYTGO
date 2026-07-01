@@ -2,7 +2,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    app_name: str = "MYTGO API"
+    app_name: str = "E-Cars API"
     environment: str = "development"
 
     database_url: str = "sqlite+aiosqlite:///./mytgo.db"
@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     telegram_ai_model: str = "gpt-4o-mini"
     telegram_ai_provider: str = "auto"
 
-    codex_repository_path: str = "/home/ubuntu/MYTGO"
+    codex_repository_path: str = "/home/ubuntu/E-Cars"
     codex_model: str = "gpt-5.4-mini"
     codex_auto_push_enabled: bool = False
     codex_auto_deploy_enabled: bool = False
@@ -43,7 +43,7 @@ class Settings(BaseSettings):
 
     model_config = SettingsConfigDict(
         env_file=".env",
-        env_prefix="MYTGO_",
+        env_prefix="E-Cars_",
         case_sensitive=False,
         extra="ignore",
     )

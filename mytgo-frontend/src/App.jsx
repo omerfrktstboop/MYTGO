@@ -598,7 +598,7 @@ function CustomerMapPanel({ token, valetRequests }) {
 const chargingStations = [
   {
     id: 1,
-    name: "MYTGO Hızlı Şarj - Merkez",
+    name: "E-Cars Hızlı Şarj - Merkez",
     meta: "DC 180 kW",
     description: "7/24 açık, ana arter üzerinde.",
     distance: "2.4 km",
@@ -606,7 +606,7 @@ const chargingStations = [
   },
   {
     id: 2,
-    name: "MYTGO Şarj Noktası - AVM",
+    name: "E-Cars Şarj Noktası - AVM",
     meta: "AC 22 kW",
     description: "Alışveriş alanı otoparkında.",
     distance: "4.8 km",
@@ -614,7 +614,7 @@ const chargingStations = [
   },
   {
     id: 3,
-    name: "MYTGO Enerji - Sanayi",
+    name: "E-Cars Enerji - Sanayi",
     meta: "DC 120 kW",
     description: "Servis ve otoyol bağlantısına yakın.",
     distance: "6.1 km",

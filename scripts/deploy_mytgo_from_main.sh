@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-REPO_ROOT="/home/ubuntu/MYTGO"
+REPO_ROOT="/home/ubuntu/E-Cars"
 BACKEND_DIR="$REPO_ROOT/mytgo-backend"
 FRONTEND_DIR="$REPO_ROOT/mytgo-frontend"
 BACKEND_VENV="$BACKEND_DIR/.venv"
@@ -62,7 +62,7 @@ npm run build
 log "publishing frontend assets"
 sudo rsync -a --delete "$FRONTEND_DIR/dist/" /var/www/mytgo/
 
-log "restarting MYTGO services"
+log "restarting E-Cars services"
 sudo systemctl restart mytgo-backend mytgo-telegram-poller
 
 log "waiting for backend health"

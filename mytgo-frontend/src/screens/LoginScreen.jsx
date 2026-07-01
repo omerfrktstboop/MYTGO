@@ -165,7 +165,7 @@ export default function LoginScreen() {
                 email,
                 role,
                 password: "DemoPass123!",
-                full_name: `MYTGO ${label}`,
+                full_name: `E-Cars ${label}`,
               }));
               setAuthMode("login");
             }}

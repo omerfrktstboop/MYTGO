@@ -1,6 +1,6 @@
-# MYTGO Oracle Linux Deploy Guide
+# E-Cars Oracle Linux Deploy Guide
 
-This guide deploys MYTGO on an Oracle Linux server with:
+This guide deploys E-Cars on an Oracle Linux server with:
 
 - FastAPI/Uvicorn backend behind Nginx
 - React production build served by Nginx
@@ -37,7 +37,7 @@ sudo chown -R $USER:$USER /opt/mytgo
 Clone the repository:
 
 ```bash
-git clone https://github.com/omerfrktstboop/MYTGO.git /opt/mytgo
+git clone https://github.com/omerfrktstboop/E-Cars.git /opt/mytgo
 cd /opt/mytgo
 ```
 
@@ -57,14 +57,14 @@ nano .env
 Use production-oriented values:
 
 ```env
-MYTGO_ENVIRONMENT=production
-MYTGO_DATABASE_URL=sqlite+aiosqlite:////opt/mytgo/mytgo-backend/mytgo.db
-MYTGO_JWT_SECRET_KEY=CHANGE_THIS_TO_A_LONG_RANDOM_SECRET
-MYTGO_JWT_ALGORITHM=HS256
-MYTGO_ACCESS_TOKEN_EXPIRE_MINUTES=60
-MYTGO_LOG_LEVEL=INFO
-MYTGO_SQL_ECHO=false
-MYTGO_DEMO_PASSWORD=DemoPass123!
+E-Cars_ENVIRONMENT=production
+E-Cars_DATABASE_URL=sqlite+aiosqlite:////opt/mytgo/mytgo-backend/mytgo.db
+E-Cars_JWT_SECRET_KEY=CHANGE_THIS_TO_A_LONG_RANDOM_SECRET
+E-Cars_JWT_ALGORITHM=HS256
+E-Cars_ACCESS_TOKEN_EXPIRE_MINUTES=60
+E-Cars_LOG_LEVEL=INFO
+E-Cars_SQL_ECHO=false
+E-Cars_DEMO_PASSWORD=DemoPass123!
 ```
 
 Initialize database and demo users:
@@ -86,7 +86,7 @@ Use this content. Replace `opc` with your Linux username if different.
 
 ```ini
 [Unit]
-Description=MYTGO FastAPI Backend
+Description=E-Cars FastAPI Backend
 After=network.target
 
 [Service]

@@ -22,7 +22,7 @@ async def set_webhook(
     ip_address: str | None = None,
 ) -> dict[str, Any]:
     if not settings.telegram_bot_token:
-        raise SystemExit("MYTGO_TELEGRAM_BOT_TOKEN is not configured")
+        raise SystemExit("E-Cars_TELEGRAM_BOT_TOKEN is not configured")
 
     secret_token = settings.telegram_webhook_secret_token
     payload: dict[str, Any] = {
@@ -45,7 +45,7 @@ async def set_webhook(
 
 async def delete_webhook() -> dict[str, Any]:
     if not settings.telegram_bot_token:
-        raise SystemExit("MYTGO_TELEGRAM_BOT_TOKEN is not configured")
+        raise SystemExit("E-Cars_TELEGRAM_BOT_TOKEN is not configured")
 
     api_base = settings.telegram_api_base_url.rstrip("/")
     url = f"{api_base}/bot{settings.telegram_bot_token}/deleteWebhook"
@@ -57,7 +57,7 @@ async def delete_webhook() -> dict[str, Any]:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Configure Telegram webhook for MYTGO")
+    parser = argparse.ArgumentParser(description="Configure Telegram webhook for E-Cars")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     set_parser = subparsers.add_parser("set", help="Set Telegram webhook")

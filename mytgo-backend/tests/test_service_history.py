@@ -1,8 +1,8 @@
 import os
 from pathlib import Path
 
-os.environ["MYTGO_DATABASE_URL"] = "sqlite+aiosqlite:///./test_mytgo.db"
-os.environ["MYTGO_JWT_SECRET_KEY"] = "test-secret"
+os.environ["E-Cars_DATABASE_URL"] = "sqlite+aiosqlite:///./test_mytgo.db"
+os.environ["E-Cars_JWT_SECRET_KEY"] = "test-secret"
 
 from fastapi.testclient import TestClient  # noqa: E402
 
@@ -57,7 +57,7 @@ def create_history_entry(
     service_date: str,
     operation_type: str = "maintenance",
     odometer_km: int | None = 45000,
-    service_provider: str | None = "MYTGO Sanayi",
+    service_provider: str | None = "E-Cars Sanayi",
     description: str | None = "Yağ ve filtre bakımı yapıldı.",
     cost_amount_cents: int | None = 325000,
     cost_currency: str | None = "TRY",
@@ -103,7 +103,7 @@ def test_customer_lists_service_history_for_vehicle_with_mapped_fields_and_desc_
             service_date="2026-06-20T09:00:00Z",
             operation_type="maintenance",
             odometer_km=45200,
-            service_provider="MYTGO Sanayi",
+            service_provider="E-Cars Sanayi",
             description="Yağ, filtre ve genel kontrol yapıldı.",
             cost_amount_cents=325000,
         )
@@ -126,7 +126,7 @@ def test_customer_lists_service_history_for_vehicle_with_mapped_fields_and_desc_
         assert first["service_date"] == "2026-06-20T09:00:00Z"
         assert first["operation_type"] == "maintenance"
         assert first["odometer_km"] == 45200
-        assert first["service_provider"] == "MYTGO Sanayi"
+        assert first["service_provider"] == "E-Cars Sanayi"
         assert first["description"] == "Yağ, filtre ve genel kontrol yapıldı."
         assert first["cost_amount_cents"] == 325000
         assert first["cost_currency"] == "TRY"
