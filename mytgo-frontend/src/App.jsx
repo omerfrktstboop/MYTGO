@@ -11,15 +11,18 @@ import {
   MapPin,
   Menu,
   MessageCircle,
+  Moon,
   Play,
   Plus,
   LogOut,
+  Settings,
   Route,
   Send,
   ShieldCheck,
   Sparkles,
   Square,
   UserRound,
+  Sun,
   Wrench,
   X,
 } from "lucide-react";
@@ -68,6 +71,8 @@ const panelDescriptions = {
   Vale: "Transfer isteği, rota ve teslim akışı tek bakışta.",
   Chat: "Müşteri ve ekip mesajları canlı konuşma akışında.",
   Bildirimler: "Servis, vale ve chat olayları burada görünür.",
+  Profil: "Hesap bilgileri, rol ve oturum özeti burada yer alır.",
+  Ayarlar: "Tema ve arayüz tercihlerini hızlıca değiştirin.",
   Transfer: "Vale operasyonunun durum geçişlerini yönetin.",
   Takip: "Canlı konum ve hareket çizgisiyle takip edin.",
   Panel: "Yönetim özeti, kapasite ve raporları hızlıca görün.",
@@ -80,22 +85,30 @@ const navByRole = {
     ["Vale", MapPin],
     ["Chat", MessageCircle],
     ["Bildirimler", BellRing],
+    ["Profil", UserRound],
+    ["Ayarlar", Settings],
   ],
   mechanic: [
     ["Randevu", Wrench],
     ["Chat", MessageCircle],
     ["Bildirimler", BellRing],
+    ["Profil", UserRound],
+    ["Ayarlar", Settings],
   ],
   valet: [
     ["Transfer", CarFront],
     ["Takip", MapPin],
     ["Bildirimler", BellRing],
+    ["Profil", UserRound],
+    ["Ayarlar", Settings],
   ],
   admin: [
     ["Panel", ShieldCheck],
     ["Vale", MapPin],
     ["Chat", MessageCircle],
     ["Bildirimler", BellRing],
+    ["Profil", UserRound],
+    ["Ayarlar", Settings],
   ],
 };
 
@@ -103,7 +116,7 @@ function App() {
   const storedTheme = typeof window !== "undefined" ? window.localStorage.getItem("ecar-theme") : null;
   const prefersDark =
     typeof window !== "undefined" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-  const [theme] = useState(storedTheme ?? (prefersDark ? "dark" : "light"));
+  const [theme, setTheme] = useState(storedTheme ?? (prefersDark ? "dark" : "light"));
   const [token, setToken] = useState(getStoredToken());
   const [user, setUser] = useState(null);
   const [authMode, setAuthMode] = useState("login");
@@ -118,6 +131,10 @@ function App() {
       window.localStorage.setItem("ecar-theme", theme);
     }
   }, [theme]);
+
+  function toggleTheme(nextTheme) {
+    setTheme(nextTheme);
+  }
 
   useEffect(() => {
     if (!token) {
@@ -166,7 +183,7 @@ function App() {
     );
   }
 
-  return <Dashboard token={token} user={user} />;
+  return <Dashboard token={token} user={user} theme={theme} onThemeChange={toggleTheme} />;
 }
 
 function AuthScreen({ authMode, error, onAuth, onModeChange }) {
@@ -273,7 +290,7 @@ function AuthScreen({ authMode, error, onAuth, onModeChange }) {
   );
 }
 
-function Dashboard({ token, user }) {
+function Dashboard({ token, user, theme, onThemeChange }) {
   const [vehicles, setVehicles] = useState([]);
   const [appointments, setAppointments] = useState([]);
   const [valetRequests, setValetRequests] = useState([]);
@@ -373,6 +390,8 @@ function Dashboard({ token, user }) {
         onChanged={() => refreshWithNotice(refresh, setNotice, "Bildirimler güncellendi")}
       />
     ),
+    Profil: <ProfilePanel user={user} />,
+    Ayarlar: <SettingsPanel theme={theme} onThemeChange={onThemeChange} />,
     Transfer: (
       <ValetOperations
         token={token}
@@ -1190,6 +1209,92 @@ function getDefaultAdminReportFilters() {
     to: now.toISOString().slice(0, 10),
     timezone: "Europe/Istanbul",
   };
+}
+
+function ProfilePanel({ user }) {
+  const profileRows = [
+    ["Ad Soyad", user.full_name],
+    ["E-posta", user.email],
+    ["Rol", roleLabels[user.role] ?? user.role],
+    ["Kullanıcı ID", user.id ?? "Belirtilmedi"],
+  ];
+
+  return (
+    <Panel title="Profil" icon={UserRound}>
+      <CardGrid>
+        <InfoCard
+          icon={UserRound}
+          title={user.full_name}
+          meta={roleLabels[user.role] ?? user.role}
+          description="Hesap ve oturum bilgileri."
+        >
+          <DetailRows rows={profileRows} />
+        </InfoCard>
+        <InfoCard
+          icon={Activity}
+          title="Hızlı Durum"
+          meta="Aktif"
+          description="Bu oturum için görünür özet."
+        >
+          <DetailRows
+            rows={[
+              ["Rol erişimi", roleLabels[user.role] ?? user.role],
+              ["Arayüz", "Sidebar tabanlı operasyon paneli"],
+              ["Bildirimler", "Canlı ve okunmamış sayaç destekli"],
+            ]}
+          />
+        </InfoCard>
+      </CardGrid>
+    </Panel>
+  );
+}
+
+function SettingsPanel({ theme, onThemeChange }) {
+  const isDark = theme === "dark";
+
+  return (
+    <Panel title="Ayarlar" icon={Settings}>
+      <div className="grid gap-4 lg:grid-cols-[1fr_1fr]">
+        <article className="rounded-3xl border border-mytgo-line bg-white p-4 shadow-sm">
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-mytgo-teal">Görünüm</p>
+          <h3 className="mt-2 text-lg font-black">Tema seçimi</h3>
+          <p className="mt-2 text-sm text-mytgo-muted">
+            Bu cihaz için açık veya koyu temayı seçebilirsiniz. Tercih yerel olarak saklanır.
+          </p>
+          <div className="mt-4 grid grid-cols-2 gap-2">
+            <button
+              className={`command ${!isDark ? "command-primary" : "command-ghost"}`}
+              type="button"
+              onClick={() => onThemeChange("light")}
+            >
+              <Sun size={18} />
+              Açık Tema
+            </button>
+            <button
+              className={`command ${isDark ? "command-primary" : "command-ghost"}`}
+              type="button"
+              onClick={() => onThemeChange("dark")}
+            >
+              <Moon size={18} />
+              Koyu Tema
+            </button>
+          </div>
+        </article>
+
+        <article className="rounded-3xl border border-mytgo-line bg-white p-4 shadow-sm">
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-mytgo-teal">Tercihler</p>
+          <h3 className="mt-2 text-lg font-black">Mevcut yapı</h3>
+          <DetailRows
+            rows={[
+              ["Tema", isDark ? "Koyu" : "Açık"],
+              ["Kayıt alanı", "Tarayıcı localStorage"],
+              ["Kapsam", "Sadece bu cihaz ve bu tarayıcı"],
+            ]}
+          />
+        </article>
+      </div>
+    </Panel>
+  );
 }
 
 function AdminPanel({ token, appointments, valetRequests, users, vehicles }) {
