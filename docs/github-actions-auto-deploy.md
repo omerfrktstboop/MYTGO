@@ -5,7 +5,7 @@ Bu repo artık `main` branch'e push gelince `.github/workflows/deploy-production
 ## Çalışma mantığı
 1. GitHub Actions tetiklenir (`push` on `main` veya `workflow_dispatch`)
 2. Job, production sunucudaki self-hosted runner üzerinde çalışır
-3. Runner, `/home/ubuntu/E-Cars/scripts/deploy_mytgo_from_main.sh origin/main` komutunu yerelde çalıştırır
+3. Runner, `./scripts/deploy_mytgo_from_main.sh origin/main` komutunu yerelde çalıştırır
 4. Script:
    - `origin/main` çekip live repo'yu ona resetler
    - `git clean -fd` ile untracked dosyaları temizler
@@ -23,7 +23,7 @@ Workflow şu label'ı bekliyor:
 - `mytgo`
 
 ## Kritik durum
-Bu makinede şu an çalışan runner **E-Cars'ya değil başka repoya bağlı**:
+Bu makinede şu an çalışan runner **başka repoya bağlı**:
 - runner adı: `english-app-runner`
 - bağlı repo: `omerfrktstboop/omer-learning-apk`
 

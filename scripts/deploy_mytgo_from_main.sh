@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-REPO_ROOT="/home/ubuntu/E-Cars"
+REPO_ROOT="/home/ubuntu/MYTGO"
 BACKEND_DIR="$REPO_ROOT/mytgo-backend"
 FRONTEND_DIR="$REPO_ROOT/mytgo-frontend"
 BACKEND_VENV="$BACKEND_DIR/.venv"

@@ -24,4 +24,4 @@ jobs:
 
       - name: Deploy live application from main
         run: |
-          /bin/bash /home/ubuntu/E-Cars/scripts/deploy_mytgo_from_main.sh origin/main
+          /bin/bash ./scripts/deploy_mytgo_from_main.sh origin/main
