@@ -23,7 +23,6 @@ _CODE_KEYWORDS = (
     "ekle",
     "oluştur",
     "olustur",
-    "yap",
     "geliştir",
     "gelistir",
     "değiştir",
@@ -85,7 +84,16 @@ def _normalize_text(text: str) -> str:
 
 def looks_like_coding_request(text: str) -> bool:
     normalized = _normalize_text(text)
-    return any(keyword in normalized for keyword in (*_CODE_KEYWORDS, *_PLAN_KEYWORDS))
+    # Kısa eşleşmeli keyword'ler (≤4 karakter) ve uzun keyword'ler için farklı strateji:
+    # Kısa keyword'ler word-boundary ile eşleşir (bug → "bug" ama "bugün" değil)
+    # Uzun keyword'ler substring eşleşmesi yapar
+    for keyword in (*_CODE_KEYWORDS, *_PLAN_KEYWORDS):
+        if len(keyword) <= 4:
+            if re.search(r"\b" + re.escape(keyword) + r"\b", normalized):
+                return True
+        elif keyword in normalized:
+            return True
+    return False
 
 
 def infer_coding_request(text: str) -> CodingOperatorRequest | None:
