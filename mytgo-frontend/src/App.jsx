@@ -8,6 +8,7 @@ import {
   BatteryCharging,
   CarFront,
   Check,
+  ArrowLeft,
   LifeBuoy,
   Layers3,
   MapPin,
@@ -26,7 +27,6 @@ import {
   UserRound,
   Sun,
   Wrench,
-  X,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { CircleMarker, MapContainer, Polyline, Popup, TileLayer } from "react-leaflet";
@@ -441,12 +441,12 @@ function Dashboard({ token, user, theme, onThemeChange, onLogout }) {
           <BrandLogo />
           <div className="flex items-center gap-2">
             <button
-              aria-label="Menüyü kapat"
-              className="icon-command border-white/20 bg-white/10 text-white lg:hidden"
+              aria-label="Geri çık"
+              className="sidebar-back-button lg:hidden"
               type="button"
               onClick={() => setSidebarOpen(false)}
             >
-              <X size={18} />
+              <ArrowLeft size={18} />
             </button>
           </div>
         </div>
