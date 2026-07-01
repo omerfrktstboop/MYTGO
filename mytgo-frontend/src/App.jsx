@@ -7,7 +7,6 @@ import {
   CalendarCheck,
   CarFront,
   Check,
-  Gauge,
   Layers3,
   MapPin,
   Menu,
@@ -61,20 +60,6 @@ const roleLabels = {
   valet: "Vale",
   admin: "Admin",
 };
-
-const roleAccentLabels = {
-  customer: "Müşteri Deneyimi",
-  mechanic: "Servis Atölyesi",
-  valet: "Vale Operasyon",
-  admin: "Admin HQ",
-};
-
-const brandTokens = [
-  ["Red", "#dc2626"],
-  ["Deep Red", "#991b1b"],
-  ["White", "#ffffff"],
-  ["Ink", "#111827"],
-];
 
 const panelDescriptions = {
   Araç: "Araç kaydı, geçmiş ve servis hazırlıkları tek kartta.",
@@ -299,6 +284,10 @@ function Dashboard({ token, user }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
+  const menuItems = navByRole[user.role];
+  const activeMenuItem = menuItems.find(([label]) => label === active) ?? menuItems[0];
+  const activeDescription =
+    panelDescriptions[active] ?? "Rol bazlı operasyonlar için detaylı işlem alanı.";
 
   const refresh = async () => {
     setError("");
@@ -335,17 +324,6 @@ function Dashboard({ token, user }) {
   useEffect(() => {
     refresh();
   }, [token, user.role]);
-
-  const totals = [
-    ["Araç", vehicles.length, CarFront, "from-zinc-700 to-zinc-900"],
-    ["Randevu", appointments.length, CalendarCheck, "from-zinc-700 to-zinc-900"],
-    ["Vale", valetRequests.length, Route, "from-zinc-700 to-zinc-900"],
-    ["Chat", conversations.length, MessageCircle, "from-zinc-700 to-zinc-900"],
-    ["Bildirim", unreadNotificationCount, BellRing, "from-zinc-700 to-zinc-900"],
-  ];
-
-  const quickTargets = navByRole[user.role].slice(0, 3);
-  const nextAction = quickTargets[0]?.[0] ?? "Bildirimler";
 
   const panels = {
     Araç: (
@@ -432,17 +410,22 @@ function Dashboard({ token, user }) {
           </div>
         </div>
 
-        <div className="mt-8 rounded-3xl bg-white/14 p-4 text-white shadow-glow ring-1 ring-white/20">
-          <p className="text-xs font-bold uppercase tracking-[0.22em] text-white/70">Canlı Operasyon</p>
-          <p className="mt-2 text-2xl font-black">{roleLabels[user.role]} Paneli</p>
-          <p className="mt-1 text-sm text-white/75">{roleAccentLabels[user.role]} için mobil öncelikli kontrol.</p>
+        <div className="sidebar-active-card mt-8">
+          <p className="text-xs font-bold uppercase tracking-[0.22em] text-white/70">Seçili İşlem</p>
+          <p className="mt-2 text-2xl font-black">{activeMenuItem[0]}</p>
+          <p className="mt-1 text-sm text-white/75">{activeDescription}</p>
+          <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-white/14 px-3 py-1.5 text-xs font-black uppercase tracking-[0.16em] text-white/85 ring-1 ring-white/18">
+            <Activity size={14} />
+            {roleLabels[user.role]} erişimi
+          </div>
         </div>
 
-        <nav className="mt-8 grid gap-2" aria-label="Ana menü">
-          <p className="px-2 text-xs font-black uppercase tracking-[0.22em] text-white/55">Sol Menü</p>
-          {navByRole[user.role].map(([label, Icon]) => (
+        <nav className="mt-7 grid gap-2" aria-label="Ana menü">
+          <p className="px-2 text-xs font-black uppercase tracking-[0.22em] text-white/55">İşlemler</p>
+          {menuItems.map(([label, Icon]) => (
             <button
               key={label}
+              aria-current={active === label ? "page" : undefined}
               className={`sidebar-link ${active === label ? "sidebar-link-active" : ""}`}
               type="button"
               onClick={() => {
@@ -451,8 +434,14 @@ function Dashboard({ token, user }) {
               }}
               title={label}
             >
-              <Icon size={20} />
-              <span>{label}</span>
+              <span className="sidebar-link-icon">
+                <Icon size={18} />
+              </span>
+              <span className="sidebar-link-copy">
+                <span className="sidebar-link-title">{label}</span>
+                <span className="sidebar-link-meta">{panelDescriptions[label] ?? "Aç"}</span>
+              </span>
+              {active === label && <span className="sidebar-link-badge">Aktif</span>}
               {label === "Bildirimler" && unreadNotificationCount > 0 && (
                 <span className="ml-auto rounded-full bg-red-600 px-2 py-0.5 text-[11px] font-black text-white">
                   {unreadNotificationCount}
@@ -462,19 +451,6 @@ function Dashboard({ token, user }) {
           ))}
         </nav>
 
-        <div className="brand-system-card mt-3 text-white">
-          <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.18em] text-white/70">
-            <Gauge size={15} />
-            Marka Sistemi
-          </div>
-          <div className="mt-3 grid grid-cols-4 gap-2" aria-label="E-Car renk sistemi">
-            {brandTokens.map(([name, color]) => (
-              <span className="brand-swatch" key={name} title={name} style={{ background: color }} />
-            ))}
-          </div>
-          <p className="mt-3 text-sm font-semibold text-white/82">Parlak CTA, yüksek kontrast ve tek elle erişilebilir akışlar.</p>
-        </div>
-
         <div className="mt-auto rounded-3xl border border-white/15 bg-white/10 p-4 text-white">
           <p className="text-sm font-bold">{user.full_name}</p>
           <p className="mt-1 text-xs uppercase tracking-[0.18em] text-white/65">{roleLabels[user.role]}</p>
@@ -483,10 +459,10 @@ function Dashboard({ token, user }) {
 
       <section className="dashboard-surface min-h-dvh px-4 py-5 sm:px-6 lg:ml-[19rem] lg:px-8">
         <header className="hero-card overflow-hidden rounded-[2rem] p-5 text-white shadow-glow sm:p-7">
-          <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
-            <div className="min-w-0 flex-1">
-              <div className="mb-4 flex flex-col gap-2 lg:hidden">
-                <div className="flex items-center gap-2">
+          <div className="flex flex-col gap-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <div className="mb-4 flex items-center gap-2 lg:hidden">
                   <button
                     aria-label="Menüyü aç"
                     className="inline-grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-white/16 text-white ring-1 ring-white/25"
@@ -499,133 +475,36 @@ function Dashboard({ token, user }) {
                     Mobil Panel
                   </span>
                 </div>
+                <p className="text-xs font-bold uppercase tracking-[0.24em] text-white/80">İlgili işlem</p>
+                <h1 className="mt-2 max-w-2xl text-3xl font-black leading-tight sm:text-4xl">
+                  {activeMenuItem[0]}
+                </h1>
+                <p className="mt-3 max-w-2xl text-sm text-white/78 sm:text-base">{activeDescription}</p>
               </div>
-              <p className="text-xs font-bold uppercase tracking-[0.24em] text-white/80">E-Car kontrol merkezi</p>
-              <h1 className="mt-2 max-w-2xl text-3xl font-black leading-tight sm:text-4xl">
-                Parlak marka sistemiyle servis, vale ve chat tek akışta
-              </h1>
-              <p className="mt-3 max-w-2xl text-sm text-white/78 sm:text-base">
-                {roleLabels[user.role]} akışı için randevu, vale takibi ve mesajlaşma modern tek panelde.
-              </p>
 
-              <div className="mt-6 grid gap-3 lg:grid-cols-[1.35fr_0.95fr]">
-                <div className="hero-overview-card">
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <p className="text-[11px] font-black uppercase tracking-[0.18em] text-white/65">Bugün odak</p>
-                      <p className="mt-1 text-lg font-black">{nextAction} modülü hazır</p>
-                      <p className="mt-1 text-sm text-white/72">
-                        En çok kullanılan alanlara tek dokunuşla geçiş yapın.
-                      </p>
-                    </div>
-                    <span className="hero-overview-chip">
-                      <Activity size={16} />
-                      Canlı
-                    </span>
-                  </div>
-
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    <button
-                      className="hero-action-button"
-                      type="button"
-                      onClick={() => setActive(nextAction)}
-                    >
-                      {nextAction} aç
-                    </button>
-                    <button
-                      className="hero-action-button"
-                      type="button"
-                      onClick={() => setActive("Bildirimler")}
-                    >
-                      Bildirimlere git
-                    </button>
-                  </div>
-                </div>
-
-                <div className="hero-status-board">
-                  {[
-                    [UserRound, "Rol", roleLabels[user.role]],
-                    [BellRing, "Okunmamış", `${unreadNotificationCount} bildirim`],
-                    [Activity, "Canlı akış", `${totals.slice(0, 3).reduce((sum, [, value]) => sum + value, 0)} kayıt`],
-                  ].map(([Icon, label, value]) => (
-                    <div className="hero-status-item" key={label}>
-                      <span className="hero-status-icon">
-                        <Icon size={16} />
-                      </span>
-                      <div>
-                        <p className="text-[11px] font-black uppercase tracking-[0.18em] text-white/62">{label}</p>
-                        <p className="mt-1 text-sm font-bold text-white">{value}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="hidden w-full max-w-sm shrink-0 flex-col gap-3 xl:flex">
-              <div className="rounded-[1.75rem] border border-white/20 bg-white/15 p-4 ring-1 ring-white/10 backdrop-blur">
-                <BrandLogo compact />
-                <div className="mt-4 grid gap-3">
-                  <div className="rounded-2xl bg-white/10 px-4 py-3 ring-1 ring-white/15">
-                    <p className="text-[11px] font-black uppercase tracking-[0.18em] text-white/65">Oturum</p>
-                    <p className="mt-1 text-lg font-black">{user.full_name}</p>
-                    <p className="text-sm text-white/72">{roleLabels[user.role]} erişimi aktif</p>
-                  </div>
-                  <div className="rounded-2xl bg-white/10 px-4 py-3 ring-1 ring-white/15">
-                    <p className="text-[11px] font-black uppercase tracking-[0.18em] text-white/65">Hızlı mod</p>
-                    <p className="mt-1 text-sm font-semibold text-white/80">
-                      {quickTargets.map(([label]) => label).join(" · ")}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-6 grid gap-3 grid-cols-2 md:grid-cols-3 xl:grid-cols-5">
-            {totals.map(([label, value, Icon, accent]) => (
-              <div className="stat-card" key={label}>
-                <span className={`stat-icon bg-gradient-to-br ${accent}`}>
-                  <Icon size={18} />
+              <div className="hidden shrink-0 flex-col items-end gap-2 sm:flex">
+                <span className="rounded-full bg-white/16 px-3 py-2 text-xs font-black uppercase tracking-[0.16em] ring-1 ring-white/20">
+                  {roleLabels[user.role]}
                 </span>
-                <div>
-                  <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/65">{label}</p>
-                  <p className="mt-1 text-2xl font-black">{value}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-6 grid gap-3 lg:grid-cols-[1.15fr_0.85fr]">
-            <div className="hero-quick-panel">
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <p className="text-[11px] font-black uppercase tracking-[0.18em] text-white/62">Kısayollar</p>
-                  <p className="mt-1 text-lg font-black">En çok kullanılan işlemler</p>
-                </div>
-                <Sparkles size={18} className="text-white/70" />
-              </div>
-              <div className="mt-4 grid gap-2 sm:grid-cols-3">
-                {quickTargets.map(([label, Icon]) => (
-                  <button
-                    className="hero-quick-action"
-                    key={label}
-                    type="button"
-                    onClick={() => setActive(label)}
-                  >
-                    <Icon size={18} />
-                    <span>{label}</span>
-                  </button>
-                ))}
+                <button className="hero-action-button" type="button" onClick={() => setActive("Bildirimler")}>
+                  Bildirimlere git
+                </button>
               </div>
             </div>
 
-            <div className="hero-quick-panel hero-quick-panel-muted">
-              <p className="text-[11px] font-black uppercase tracking-[0.18em] text-white/62">Durum</p>
-              <p className="mt-1 text-lg font-black">Panel akışı hazır</p>
-              <p className="mt-1 text-sm text-white/72">
-                Bildirim, sohbet ve operasyon modüllerine tek ekrandan geçebilirsiniz.
-              </p>
+            <div className="hero-inline-strip">
+              <div className="hero-inline-item">
+                <UserRound size={16} />
+                <span>{user.full_name}</span>
+              </div>
+              <div className="hero-inline-item">
+                <BellRing size={16} />
+                <span>{unreadNotificationCount} okunmamış</span>
+              </div>
+              <div className="hero-inline-item">
+                <Activity size={16} />
+                <span>{menuItems.length} menü öğesi</span>
+              </div>
             </div>
           </div>
         </header>

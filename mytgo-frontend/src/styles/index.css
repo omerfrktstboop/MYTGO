@@ -194,9 +194,10 @@ input:focus, textarea:focus, select:focus {
   display: flex;
   min-height: 3.25rem;
   align-items: center;
+  justify-content: flex-start;
   gap: 0.75rem;
   border-radius: 1.25rem;
-  padding: 0 1rem;
+  padding: 0.9rem 1rem;
   border: 1px solid transparent;
   background: transparent;
   color: rgba(255,255,255,0.72);
@@ -210,6 +211,57 @@ input:focus, textarea:focus, select:focus {
   background: rgba(255,255,255,0.16);
   border-color: rgba(255,255,255,0.2);
   color: #fff;
+}
+
+.sidebar-link-icon {
+  display: inline-grid;
+  height: 2.25rem;
+  width: 2.25rem;
+  place-items: center;
+  border-radius: 0.9rem;
+  background: rgba(255,255,255,0.12);
+  flex: 0 0 auto;
+}
+
+.sidebar-link-copy {
+  display: grid;
+  min-width: 0;
+  gap: 0.15rem;
+  flex: 1 1 auto;
+}
+
+.sidebar-link-title {
+  font-size: 0.96rem;
+  line-height: 1.1;
+}
+
+.sidebar-link-meta {
+  color: rgba(255,255,255,0.62);
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.sidebar-link-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.14);
+  padding: 0.3rem 0.55rem;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.sidebar-active-card {
+  border-radius: 1.5rem;
+  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.12);
+  padding: 1rem;
+  color: #fff;
+  backdrop-filter: blur(12px);
 }
 
 .sidebar-quick-panel {
@@ -291,6 +343,25 @@ input:focus, textarea:focus, select:focus {
   width: 14rem;
   height: 14rem;
   background: rgba(17,24,39,0.16);
+}
+
+.hero-inline-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.hero-inline-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.10);
+  padding: 0.55rem 0.8rem;
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 800;
 }
 
 .hero-action-button {
