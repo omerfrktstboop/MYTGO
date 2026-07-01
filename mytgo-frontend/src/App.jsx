@@ -13,6 +13,7 @@ import {
   MessageCircle,
   Play,
   Plus,
+  LogOut,
   Route,
   Send,
   ShieldCheck,
@@ -289,6 +290,13 @@ function Dashboard({ token, user }) {
   const activeDescription =
     panelDescriptions[active] ?? "Rol bazlı operasyonlar için detaylı işlem alanı.";
 
+  function handleLogout() {
+    clearStoredToken();
+    setToken(null);
+    setUser(null);
+    setSidebarOpen(false);
+  }
+
   const refresh = async () => {
     setError("");
     try {
@@ -450,6 +458,20 @@ function Dashboard({ token, user }) {
             </button>
           ))}
         </nav>
+
+        <button
+          className="mt-4 flex w-full items-center gap-3 rounded-2xl border border-red-300/20 bg-red-500/10 px-4 py-3 text-left font-bold text-white transition hover:bg-red-500/18"
+          type="button"
+          onClick={handleLogout}
+        >
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-red-500/15 text-red-100 ring-1 ring-red-300/20">
+            <LogOut size={18} />
+          </span>
+          <span className="flex-1">
+            <span className="block text-sm">Çıkış Yap</span>
+            <span className="block text-xs font-medium text-white/65">Oturumu kapat</span>
+          </span>
+        </button>
 
         <div className="mt-auto rounded-3xl border border-white/15 bg-white/10 p-4 text-white">
           <p className="text-sm font-bold">{user.full_name}</p>
