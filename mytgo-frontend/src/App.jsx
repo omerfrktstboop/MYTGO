@@ -503,17 +503,20 @@ function Dashboard({ token, user, theme, onThemeChange }) {
           <div className="flex flex-col gap-4">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <div className="mb-4 flex items-center gap-2 lg:hidden">
+                <div className="mb-4 flex flex-wrap items-center gap-2 lg:hidden">
                   <button
                     aria-label="Menüyü aç"
-                    className="inline-grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-white/16 text-white ring-1 ring-white/25"
+                    className="inline-grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-white/16 text-white ring-1 ring-white/25"
                     type="button"
                     onClick={() => setSidebarOpen(true)}
                   >
-                    <Menu size={22} />
+                    <Menu size={20} />
                   </button>
-                  <span className="rounded-full bg-white/16 px-3 py-2 text-xs font-black uppercase tracking-[0.16em] ring-1 ring-white/20">
+                  <span className="rounded-full bg-white/16 px-2.5 py-1.5 text-[0.68rem] font-black uppercase tracking-[0.14em] ring-1 ring-white/20">
                     Mobil Panel
+                  </span>
+                  <span className="rounded-full bg-white/10 px-2.5 py-1.5 text-[0.68rem] font-black uppercase tracking-[0.14em] ring-1 ring-white/15">
+                    Operasyon
                   </span>
                 </div>
                 <p className="text-xs font-bold uppercase tracking-[0.24em] text-white/80">İlgili işlem</p>
