@@ -7,7 +7,6 @@ import {
   CalendarCheck,
   CarFront,
   Check,
-  Crown,
   Gauge,
   Layers3,
   MapPin,
@@ -18,7 +17,6 @@ import {
   Route,
   Send,
   ShieldCheck,
-  Smartphone,
   Sparkles,
   Square,
   UserRound,
@@ -346,6 +344,9 @@ function Dashboard({ token, user }) {
     ["Bildirim", unreadNotificationCount, BellRing, "from-zinc-700 to-zinc-900"],
   ];
 
+  const quickTargets = navByRole[user.role].slice(0, 3);
+  const nextAction = quickTargets[0]?.[0] ?? "Bildirimler";
+
   const panels = {
     Araç: (
       <CustomerVehicles
@@ -507,22 +508,57 @@ function Dashboard({ token, user }) {
                 {roleLabels[user.role]} akışı için randevu, vale takibi ve mesajlaşma modern tek panelde.
               </p>
 
-              <div className="hero-detail-strip mt-6 grid gap-3 sm:grid-cols-3">
-                {[
-                  [UserRound, "Aktif rol", roleLabels[user.role]],
-                  [BellRing, "Okunmamış", `${unreadNotificationCount} bildirim`],
-                  [Activity, "Canlı durum", "Randevu + vale akışı"],
-                ].map(([Icon, label, value]) => (
-                  <div className="hero-detail-card" key={label}>
-                    <span className="hero-detail-icon">
-                      <Icon size={16} />
-                    </span>
+              <div className="mt-6 grid gap-3 lg:grid-cols-[1.35fr_0.95fr]">
+                <div className="hero-overview-card">
+                  <div className="flex items-start justify-between gap-4">
                     <div>
-                      <p className="text-[11px] font-black uppercase tracking-[0.18em] text-white/65">{label}</p>
-                      <p className="mt-1 text-sm font-bold text-white">{value}</p>
+                      <p className="text-[11px] font-black uppercase tracking-[0.18em] text-white/65">Bugün odak</p>
+                      <p className="mt-1 text-lg font-black">{nextAction} modülü hazır</p>
+                      <p className="mt-1 text-sm text-white/72">
+                        En çok kullanılan alanlara tek dokunuşla geçiş yapın.
+                      </p>
                     </div>
+                    <span className="hero-overview-chip">
+                      <Activity size={16} />
+                      Canlı
+                    </span>
                   </div>
-                ))}
+
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <button
+                      className="hero-action-button"
+                      type="button"
+                      onClick={() => setActive(nextAction)}
+                    >
+                      {nextAction} aç
+                    </button>
+                    <button
+                      className="hero-action-button"
+                      type="button"
+                      onClick={() => setActive("Bildirimler")}
+                    >
+                      Bildirimlere git
+                    </button>
+                  </div>
+                </div>
+
+                <div className="hero-status-board">
+                  {[
+                    [UserRound, "Rol", roleLabels[user.role]],
+                    [BellRing, "Okunmamış", `${unreadNotificationCount} bildirim`],
+                    [Activity, "Canlı akış", `${totals.slice(0, 3).reduce((sum, [, value]) => sum + value, 0)} kayıt`],
+                  ].map(([Icon, label, value]) => (
+                    <div className="hero-status-item" key={label}>
+                      <span className="hero-status-icon">
+                        <Icon size={16} />
+                      </span>
+                      <div>
+                        <p className="text-[11px] font-black uppercase tracking-[0.18em] text-white/62">{label}</p>
+                        <p className="mt-1 text-sm font-bold text-white">{value}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
 
@@ -535,28 +571,18 @@ function Dashboard({ token, user }) {
                     <p className="mt-1 text-lg font-black">{user.full_name}</p>
                     <p className="text-sm text-white/72">{roleLabels[user.role]} erişimi aktif</p>
                   </div>
+                  <div className="rounded-2xl bg-white/10 px-4 py-3 ring-1 ring-white/15">
+                    <p className="text-[11px] font-black uppercase tracking-[0.18em] text-white/65">Hızlı mod</p>
+                    <p className="mt-1 text-sm font-semibold text-white/80">
+                      {quickTargets.map(([label]) => label).join(" · ")}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="mt-6 grid gap-3 md:grid-cols-3">
-            {[
-              [Crown, "Premium marka", "Gradient kimlik + neon vurgu"],
-              [Smartphone, "Mobil öncelik", "Sidebar drawer ve büyük dokunma alanı"],
-              [BellRing, "Canlı aksiyon", "Teklif, vale ve chat hızlı komutları"],
-            ].map(([Icon, title, copy]) => (
-              <div className="brand-promise-card" key={title}>
-                <Icon size={20} />
-                <div>
-                  <p className="font-black">{title}</p>
-                  <p className="text-xs text-white/70">{copy}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-6 grid gap-3 sm:grid-cols-4">
+          <div className="mt-6 grid gap-3 grid-cols-2 md:grid-cols-3 xl:grid-cols-5">
             {totals.map(([label, value, Icon, accent]) => (
               <div className="stat-card" key={label}>
                 <span className={`stat-icon bg-gradient-to-br ${accent}`}>
@@ -568,6 +594,39 @@ function Dashboard({ token, user }) {
                 </div>
               </div>
             ))}
+          </div>
+
+          <div className="mt-6 grid gap-3 lg:grid-cols-[1.15fr_0.85fr]">
+            <div className="hero-quick-panel">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-[11px] font-black uppercase tracking-[0.18em] text-white/62">Kısayollar</p>
+                  <p className="mt-1 text-lg font-black">En çok kullanılan işlemler</p>
+                </div>
+                <Sparkles size={18} className="text-white/70" />
+              </div>
+              <div className="mt-4 grid gap-2 sm:grid-cols-3">
+                {quickTargets.map(([label, Icon]) => (
+                  <button
+                    className="hero-quick-action"
+                    key={label}
+                    type="button"
+                    onClick={() => setActive(label)}
+                  >
+                    <Icon size={18} />
+                    <span>{label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="hero-quick-panel hero-quick-panel-muted">
+              <p className="text-[11px] font-black uppercase tracking-[0.18em] text-white/62">Durum</p>
+              <p className="mt-1 text-lg font-black">Panel akışı hazır</p>
+              <p className="mt-1 text-sm text-white/72">
+                Bildirim, sohbet ve operasyon modüllerine tek ekrandan geçebilirsiniz.
+              </p>
+            </div>
           </div>
         </header>
 
