@@ -190,6 +190,8 @@ function App() {
     clearStoredToken();
     setToken(null);
     setUser(null);
+    setAuthMode("login");
+    setAuthError("");
   }
 
   return (
