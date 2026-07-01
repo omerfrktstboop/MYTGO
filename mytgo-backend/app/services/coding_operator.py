@@ -123,6 +123,61 @@ def infer_coding_request(text: str) -> CodingOperatorRequest | None:
     )
 
 
+async def run_chat_reply(message_text: str, *, user_name: str | None = None) -> str:
+    """Codex CLI ile genel sohbet cevabı üretir (salt okunur modda)."""
+    repo_path = Path(settings.codex_repository_path).expanduser()
+    prompt = (
+        "Sen E-Cars için çalışan kısa, doğal ve yardımsever bir Telegram asistanısın.\n"
+        "Cevapların Türkçe, kısa ve net olsun. Sadece cevap ver.\n"
+        "Kesinlikle kod değiştirme, dosya oluşturma, commit veya push yapma.\n"
+        "Sadece sorulan soruya doğal bir insan gibi cevap ver.\n"
+    )
+    if user_name:
+        prompt += f"Kullanıcı adı: {user_name}\n"
+    prompt += f"Mesaj: {message_text.strip()}"
+
+    with tempfile.NamedTemporaryFile(prefix="mytgo-chat-", suffix=".txt", delete=False) as handle:
+        last_message_path = Path(handle.name)
+
+    cmd = [
+        "/home/ubuntu/.nvm/versions/node/v22.23.1/bin/codex",
+        "exec",
+        "--model",
+        settings.codex_model,
+        "--cd",
+        str(repo_path),
+        "--sandbox",
+        "read-only",
+        "--skip-git-repo-check",
+        "--output-last-message",
+        str(last_message_path),
+        prompt,
+    ]
+
+    process = await asyncio.create_subprocess_exec(
+        *cmd,
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE,
+    )
+    stdout_bytes, stderr_bytes = await process.communicate()
+    last_message = ""
+    if last_message_path.exists():
+        last_message = last_message_path.read_text(encoding="utf-8", errors="replace").strip()
+        try:
+            last_message_path.unlink()
+        except OSError:
+            pass
+
+    if last_message:
+        return last_message
+
+    stdout_text = stdout_bytes.decode("utf-8", errors="replace").strip()
+    if stdout_text:
+        return _trim(stdout_text)
+
+    return "Bu soruya cevap veremedim, biraz daha açabilir misin?"
+
+
 def build_codex_prompt(request: CodingOperatorRequest) -> str:
     repo_path = Path(settings.codex_repository_path).expanduser()
     allowed_branches = settings.codex_allowed_branches.strip() or "main"

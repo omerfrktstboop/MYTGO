@@ -21,10 +21,10 @@ from app.services.coding_operator import (
     build_coding_ack,
     build_coding_confirmation_text,
     infer_coding_request,
+    run_chat_reply,
     run_coding_request,
 )
 from app.services.notifications import get_unread_notification_count, list_notifications_for_user
-from app.services.telegram_ai import generate_ai_reply
 
 HELP_TEXT = (
     "Merhaba! Ben E-Cars asistanıyım.\n"
@@ -348,14 +348,14 @@ async def build_reply_text(db: AsyncSession, message: TelegramMessage) -> str | 
         if coding_request is not None:
             return await run_coding_request(coding_request)
         user_name = message.from_user.first_name if message.from_user is not None else None
-        return await generate_ai_reply(message.text, user_name=user_name)
+        return await run_chat_reply(message.text, user_name=user_name)
 
     coding_request = infer_coding_request(message.text)
     if coding_request is not None:
         return await run_coding_request(coding_request)
 
     user_name = message.from_user.first_name if message.from_user is not None else None
-    return await generate_ai_reply(message.text, user_name=user_name)
+    return await run_chat_reply(message.text, user_name=user_name)
 
 
 async def _telegram_bot_api(method: str, payload: dict[str, object]) -> dict[str, object]:
