@@ -14,7 +14,8 @@ _AI_SYSTEM_PROMPT = (
     "Cevapların Türkçe, kısa ve net olsun. "
     "Normal sorulara doğal şekilde cevap ver. "
     "Aksiyon tarafında sadece MYTGO kodu yazma, test, push ve deploy konularında yardımcı ol. "
-    "Uygulamayı durdurma, sunucuyu restart etme, servis kapatma gibi operasyonel aksiyonları yapamayacağını açıkça söyle. "
+    "Kullanıcı açıkça operasyonel bir işlem isterse — örneğin uygulamayı durdurma, sunucuyu restart etme, servis kapatma — bunu kısa şekilde reddet. "
+    "Ama normal ürün veya geliştirme isteğinde gereksiz kapasite açıklaması yapma; doğal cevap ver. "
     "Kullanıcı selam verirse sıcak bir şekilde karşılık ver ve ne yapabildiğini kısa söyle."
 )
 
@@ -39,15 +40,15 @@ def _looks_like_greeting(text: str) -> bool:
 
 
 def _fallback_reply(message_text: str) -> str:
+    normalized = _normalize_text(message_text)
     if _looks_like_greeting(message_text):
         return (
             "Selam! Ben MYTGO asistanıyım. Sorularını cevaplayabilirim; "
             "aksiyon olarak ise sadece MYTGO için kod yazar, test çalıştırır ve deploy ederim."
         )
-    return (
-        "Bunu cevaplayabilirim. Ama aksiyon tarafında sadece MYTGO kodu, test, push ve deploy yaparım; "
-        "uygulama durdurma veya sunucu restart etme gibi işlemleri yapmam."
-    )
+    if any(token in normalized for token in ("restart", "yeniden başlat", "yeniden baslat", "durdur", "stop", "kapat")):
+        return "Bu operasyonel işlemi yapamam. İstersen MYTGO tarafında kod, test, push veya deploy konusunda yardımcı olayım."
+    return "Ne istediğini anladım. İstersen bunu MYTGO tarafında net bir görev olarak biraz daha açabilirsin."
 
 
 def _extract_openai_text(response: object) -> str:

@@ -17,6 +17,7 @@ from app.models.telegram_auth import TelegramAuthGrant
 from app.models.user import User
 from app.schemas.telegram import TelegramMessage, TelegramUpdate
 from app.services.coding_operator import (
+    CodingOperatorRequest,
     build_coding_ack,
     build_coding_confirmation_text,
     infer_coding_request,
@@ -82,6 +83,9 @@ _BLOCKED_OPERATION_TARGETS = (
 logger = logging.getLogger(__name__)
 _TELEGRAM_TYPING_ACTION = "typing"
 _PROGRESS_TYPING_INTERVAL_SECONDS = 4
+_CONFIRM_WORDS = {"onay", "evet", "tamam", "olur", "yap", "uygula"}
+_CANCEL_WORDS = {"vazgeç", "vazgec", "iptal", "dur", "gerek yok"}
+_PENDING_CODING_REQUESTS: dict[tuple[int, int], CodingOperatorRequest] = {}
 
 
 def parse_id_list(raw_value: str | None) -> set[int]:
@@ -224,9 +228,31 @@ def infer_blocked_operation_request(text: str) -> bool:
     if not normalized:
         return False
 
-    has_blocked_verb = any(token in normalized for token in _BLOCKED_OPERATION_VERBS)
-    has_blocked_target = any(token in normalized for token in _BLOCKED_OPERATION_TARGETS)
-    return has_blocked_verb and has_blocked_target
+    return any(verb in normalized for verb in _BLOCKED_OPERATION_VERBS) and any(
+        target in normalized for target in _BLOCKED_OPERATION_TARGETS
+    )
+
+
+def _pending_request_key(message: TelegramMessage) -> tuple[int, int] | None:
+    if message.from_user is None:
+        return None
+    return (message.chat.id, message.from_user.id)
+
+
+def _normalized_text(text: str | None) -> str:
+    if text is None:
+        return ""
+    return re.sub(r"\s+", " ", text.strip().lower())
+
+
+def is_confirmation_message(text: str | None) -> bool:
+    normalized = _normalized_text(text)
+    return normalized in _CONFIRM_WORDS
+
+
+def is_cancellation_message(text: str | None) -> bool:
+    normalized = _normalized_text(text)
+    return normalized in _CANCEL_WORDS
 
 
 def clamp_notification_limit(argument: str) -> int:
@@ -444,7 +470,6 @@ async def process_update(db: AsyncSession, update: TelegramUpdate) -> dict[str, 
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Telegram chat or user is not allowlisted",
         )
-
     reply_text: str | None = None
     delivered_via_progress = False
     if message.text is not None:
@@ -452,28 +477,65 @@ async def process_update(db: AsyncSession, update: TelegramUpdate) -> dict[str, 
         if access_message is not None:
             reply_text = access_message
         else:
-            coding_request = infer_coding_request(message.text)
-            if coding_request is not None:
-                progress = TelegramProgressReporter(message.chat.id)
-                stop_event = asyncio.Event()
-                typing_task = asyncio.create_task(_typing_heartbeat(message.chat.id, stop_event))
-                try:
+            pending_key = _pending_request_key(message)
+            pending_request = _PENDING_CODING_REQUESTS.get(pending_key) if pending_key is not None else None
+
+            if pending_request is not None and is_cancellation_message(message.text):
+                if pending_key is not None:
+                    _PENDING_CODING_REQUESTS.pop(pending_key, None)
+                reply_text = "Tamam, bekleyen kod isteğini iptal ettim."
+            elif pending_request is not None and is_confirmation_message(message.text):
+                if pending_key is None:
+                    reply_text = "Bu isteği onaylayamadım; lütfen tekrar dene."
+                else:
+                    coding_request = _PENDING_CODING_REQUESTS.pop(pending_key)
+                    progress = TelegramProgressReporter(message.chat.id)
+                    stop_event = asyncio.Event()
+                    typing_task = asyncio.create_task(_typing_heartbeat(message.chat.id, stop_event))
                     try:
-                        reply_text = await run_coding_request(coding_request, progress_callback=progress.update)
-                    except TypeError as exc:
-                        if "progress_callback" not in str(exc):
-                            raise
-                        reply_text = await run_coding_request(coding_request)
-                    delivered_via_progress = await progress.finalize(reply_text)
-                finally:
-                    stop_event.set()
-                    typing_task.cancel()
-                    try:
-                        await typing_task
-                    except asyncio.CancelledError:
-                        pass
+                        await progress.update("Onayı aldım, kod görevini başlatıyorum.")
+                        try:
+                            reply_text = await run_coding_request(coding_request, progress_callback=progress.update)
+                        except TypeError as exc:
+                            if "progress_callback" not in str(exc):
+                                raise
+                            reply_text = await run_coding_request(coding_request)
+                        delivered_via_progress = await progress.finalize(reply_text)
+                    finally:
+                        stop_event.set()
+                        typing_task.cancel()
+                        try:
+                            await typing_task
+                        except asyncio.CancelledError:
+                            pass
             else:
-                reply_text = await build_reply_text(db, message)
+                coding_request = infer_coding_request(message.text)
+                if coding_request is not None and (coding_request.action == "plan" or coding_request.requires_confirmation):
+                    if pending_key is not None:
+                        _PENDING_CODING_REQUESTS[pending_key] = coding_request
+                    reply_text = build_coding_confirmation_text(coding_request)
+                elif coding_request is not None:
+                    progress = TelegramProgressReporter(message.chat.id)
+                    stop_event = asyncio.Event()
+                    typing_task = asyncio.create_task(_typing_heartbeat(message.chat.id, stop_event))
+                    try:
+                        await progress.update("İsteği aldım, kod görevini başlatıyorum.")
+                        try:
+                            reply_text = await run_coding_request(coding_request, progress_callback=progress.update)
+                        except TypeError as exc:
+                            if "progress_callback" not in str(exc):
+                                raise
+                            reply_text = await run_coding_request(coding_request)
+                        delivered_via_progress = await progress.finalize(reply_text)
+                    finally:
+                        stop_event.set()
+                        typing_task.cancel()
+                        try:
+                            await typing_task
+                        except asyncio.CancelledError:
+                            pass
+                else:
+                    reply_text = await build_reply_text(db, message)
     else:
         reply_text = await build_reply_text(db, message)
 

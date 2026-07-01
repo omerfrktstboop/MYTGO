@@ -26,11 +26,15 @@ _CODE_KEYWORDS = (
     "yap",
     "geliştir",
     "gelistir",
+    "değiştir",
+    "degistir",
     "düzelt",
     "duzelt",
     "fix",
     "bug",
     "hata",
+    "logo",
+    "ikon",
     "buton",
     "ekran",
     "sayfa",
@@ -108,7 +112,7 @@ def infer_coding_request(text: str) -> CodingOperatorRequest | None:
         action = "implement"
         confidence = "medium"
 
-    requires_confirmation = action in {"deploy", "push"}
+    requires_confirmation = action in {"deploy", "push", "plan"}
     summary = text.strip()
     return CodingOperatorRequest(
         raw_text=text.strip(),
@@ -290,7 +294,7 @@ async def run_coding_request(
     except Exception:
         git_status = ""
 
-    parts = ["Kod görevi tamamlandı."]
+    parts = [_action_completion_title(request.action)]
     if process.returncode == 0:
         parts.append("Durum: başarılı")
     else:
