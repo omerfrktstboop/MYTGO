@@ -2,7 +2,6 @@ import "leaflet/dist/leaflet.css";
 
 import {
   Activity,
-  BarChart3,
   BellRing,
   CalendarCheck,
   BatteryCharging,
@@ -10,22 +9,18 @@ import {
   Check,
   ArrowLeftToLine,
   LifeBuoy,
-  Layers3,
   MapPin,
   Menu,
   MessageCircle,
-  Moon,
   Play,
   Plus,
   LogOut,
   Settings,
-  Route,
   Send,
   ShieldCheck,
   Sparkles,
   Square,
   UserRound,
-  Sun,
   Wrench,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -52,6 +47,13 @@ import {
 } from "./appDetails";
 import { ServiceHistoryLoader } from "./serviceHistory";
 import { createRealtimeSocket } from "./services/realtime";
+import {
+  AdminDashboard,
+  Button,
+  ThemeToggle,
+  VehicleListSkeleton,
+  useTheme,
+} from "./ui/system.js";
 
 const demoUsers = [
   ["Müşteri", "customer@mytgo.local", "customer"],
@@ -116,28 +118,11 @@ const navByRole = {
 };
 
 function App() {
-  const storedTheme = typeof window !== "undefined" ? window.localStorage.getItem("ecar-theme") : null;
-  const prefersDark =
-    typeof window !== "undefined" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-  const [theme, setTheme] = useState(storedTheme ?? (prefersDark ? "dark" : "light"));
   const [token, setToken] = useState(getStoredToken());
   const [user, setUser] = useState(null);
   const [authMode, setAuthMode] = useState("login");
   const [authError, setAuthError] = useState("");
   const [booting, setBooting] = useState(Boolean(token));
-
-  useEffect(() => {
-    if (typeof document !== "undefined") {
-      document.documentElement.dataset.theme = theme;
-    }
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem("ecar-theme", theme);
-    }
-  }, [theme]);
-
-  function toggleTheme(nextTheme) {
-    setTheme(nextTheme);
-  }
 
   useEffect(() => {
     if (!token) {
@@ -194,9 +179,7 @@ function App() {
     setAuthError("");
   }
 
-  return (
-    <Dashboard token={token} user={user} theme={theme} onThemeChange={toggleTheme} onLogout={handleLogout} />
-  );
+  return <Dashboard token={token} user={user} onLogout={handleLogout} />;
 }
 
 function AuthScreen({ authMode, error, onAuth, onModeChange }) {
@@ -207,6 +190,7 @@ function AuthScreen({ authMode, error, onAuth, onModeChange }) {
     phone: "",
     role: "customer",
   });
+  const [submitting, setSubmitting] = useState(false);
 
   function update(key, value) {
     setForm((current) => ({ ...current, [key]: value }));
@@ -224,7 +208,8 @@ function AuthScreen({ authMode, error, onAuth, onModeChange }) {
             phone: form.phone || null,
             role: form.role,
           };
-    onAuth(payload);
+    setSubmitting(true);
+    Promise.resolve(onAuth(payload)).finally(() => setSubmitting(false));
   }
 
   return (
@@ -268,14 +253,18 @@ function AuthScreen({ authMode, error, onAuth, onModeChange }) {
                 ))}
               </select>
             </Field>
-          </>
-        )}
-        {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
-        <button className="command command-primary" type="submit">
-          <Check size={18} />
-          {authMode === "login" ? "Giriş Yap" : "Kayıt Ol"}
-        </button>
-      </form>
+        </>
+      )}
+      {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+      <Button
+        className="w-full"
+        leftIcon={<Check size={18} />}
+        loading={submitting}
+        type="submit"
+      >
+        {authMode === "login" ? "Giriş Yap" : "Kayıt Ol"}
+      </Button>
+    </form>
 
       <div className="mt-5 grid grid-cols-2 gap-2">
         {demoUsers.map(([label, email, role]) => (
@@ -303,7 +292,7 @@ function AuthScreen({ authMode, error, onAuth, onModeChange }) {
   );
 }
 
-function Dashboard({ token, user, theme, onThemeChange, onLogout }) {
+function Dashboard({ token, user, onLogout }) {
   const [vehicles, setVehicles] = useState([]);
   const [appointments, setAppointments] = useState([]);
   const [valetRequests, setValetRequests] = useState([]);
@@ -315,12 +304,14 @@ function Dashboard({ token, user, theme, onThemeChange, onLogout }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
   const menuItems = navByRole[user.role];
   const activeMenuItem = menuItems.find(([label]) => label === active) ?? menuItems[0];
   const activeDescription =
     panelDescriptions[active] ?? "Rol bazlı operasyonlar için detaylı işlem alanı.";
 
   const refresh = async () => {
+    setLoading(true);
     setError("");
     try {
       const [
@@ -349,6 +340,8 @@ function Dashboard({ token, user, theme, onThemeChange, onLogout }) {
       }
     } catch (err) {
       setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -361,6 +354,7 @@ function Dashboard({ token, user, theme, onThemeChange, onLogout }) {
       <CustomerVehicles
         token={token}
         vehicles={vehicles}
+        loading={loading}
         onChanged={() => refreshWithNotice(refresh, setNotice, "Araç kaydedildi")}
       />
     ),
@@ -405,7 +399,7 @@ function Dashboard({ token, user, theme, onThemeChange, onLogout }) {
       />
     ),
     Profil: <ProfilePanel user={user} />,
-    Ayarlar: <SettingsPanel theme={theme} onThemeChange={onThemeChange} />,
+    Ayarlar: <SettingsPanel />,
     Transfer: (
       <ValetOperations
         token={token}
@@ -421,6 +415,7 @@ function Dashboard({ token, user, theme, onThemeChange, onLogout }) {
         valetRequests={valetRequests}
         users={users}
         vehicles={vehicles}
+        loading={loading}
       />
     ),
   };
@@ -547,9 +542,12 @@ function Dashboard({ token, user, theme, onThemeChange, onLogout }) {
                 <span className="rounded-full bg-white/16 px-3 py-2 text-xs font-black uppercase tracking-[0.16em] ring-1 ring-white/20">
                   {roleLabels[user.role]}
                 </span>
-                <button className="hero-action-button" type="button" onClick={() => setActive("Bildirimler")}>
-                  Bildirimlere git
-                </button>
+                <div className="flex items-center gap-2">
+                  <ThemeToggle className="bg-white/12 text-white hover:bg-white/20" />
+                  <button className="hero-action-button" type="button" onClick={() => setActive("Bildirimler")}>
+                    Bildirimlere git
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -700,22 +698,29 @@ function RoadsideAssistancePanel() {
   );
 }
 
-function CustomerVehicles({ token, vehicles, onChanged }) {
+function CustomerVehicles({ token, vehicles, loading, onChanged }) {
   const [form, setForm] = useState({ plate_number: "", brand: "", model: "", year: "" });
+  const [submitting, setSubmitting] = useState(false);
 
   async function submit(event) {
     event.preventDefault();
-    await apiRequest("/api/v1/vehicles", {
-      method: "POST",
-      token,
-      body: { ...form, year: form.year ? Number(form.year) : null },
-    });
-    setForm({ plate_number: "", brand: "", model: "", year: "" });
-    onChanged();
+    setSubmitting(true);
+    try {
+      await apiRequest("/api/v1/vehicles", {
+        method: "POST",
+        token,
+        body: { ...form, year: form.year ? Number(form.year) : null },
+      });
+      setForm({ plate_number: "", brand: "", model: "", year: "" });
+      onChanged();
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
     <Panel title="Araçlarım" icon={CarFront}>
+      {loading && vehicles.length === 0 ? <VehicleListSkeleton rows={3} /> : null}
       <form className="grid gap-3 sm:grid-cols-4" onSubmit={submit}>
         <Field label="Plaka">
           <input
@@ -745,10 +750,14 @@ function CustomerVehicles({ token, vehicles, onChanged }) {
             onChange={(event) => setForm({ ...form, year: event.target.value })}
           />
         </Field>
-        <button className="command command-primary sm:col-span-4" type="submit">
-          <Plus size={18} />
+        <Button
+          className="w-full sm:col-span-4"
+          leftIcon={<Plus size={18} />}
+          loading={submitting}
+          type="submit"
+        >
           Araç Ekle
-        </button>
+        </Button>
       </form>
       <CardGrid>
         {vehicles.map((vehicle) => (
@@ -774,16 +783,22 @@ function CustomerAppointments({ token, vehicles, appointments, onChanged }) {
     service_address: "E-Car Sanayi",
     notes: "",
   });
+  const [submitting, setSubmitting] = useState(false);
 
   async function submit(event) {
     event.preventDefault();
-    await apiRequest("/api/v1/appointments", {
-      method: "POST",
-      token,
-      body: { ...form, vehicle_id: Number(form.vehicle_id) },
-    });
-    setForm((current) => ({ ...current, notes: "" }));
-    onChanged();
+    setSubmitting(true);
+    try {
+      await apiRequest("/api/v1/appointments", {
+        method: "POST",
+        token,
+        body: { ...form, vehicle_id: Number(form.vehicle_id) },
+      });
+      setForm((current) => ({ ...current, notes: "" }));
+      onChanged();
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   async function approveQuote(id) {
@@ -833,10 +848,9 @@ function CustomerAppointments({ token, vehicles, appointments, onChanged }) {
         <Field label="Not">
           <input value={form.notes} onChange={(event) => setForm({ ...form, notes: event.target.value })} />
         </Field>
-        <button className="command command-primary sm:col-span-2" type="submit">
-          <Plus size={18} />
+        <Button className="w-full sm:col-span-2" leftIcon={<Plus size={18} />} loading={submitting} type="submit">
           Randevu Oluştur
-        </button>
+        </Button>
       </form>
       <AppointmentList appointments={appointments} onApproveQuote={approveQuote} />
     </Panel>
@@ -845,6 +859,7 @@ function CustomerAppointments({ token, vehicles, appointments, onChanged }) {
 
 function MechanicAppointments({ token, appointments, onChanged }) {
   const [quoteForms, setQuoteForms] = useState({});
+  const [submittingId, setSubmittingId] = useState(null);
 
   async function patch(id, status) {
     await apiRequest(`/api/v1/appointments/${id}`, {
@@ -858,16 +873,21 @@ function MechanicAppointments({ token, appointments, onChanged }) {
   async function sendQuote(event, id) {
     event.preventDefault();
     const form = quoteForms[id] ?? { amount: "", notes: "" };
-    await apiRequest(`/api/v1/appointments/${id}`, {
-      method: "PATCH",
-      token,
-      body: {
-        quote_amount_cents: Math.round(Number(form.amount) * 100),
-        quote_notes: form.notes || null,
-      },
-    });
-    setQuoteForms((current) => ({ ...current, [id]: { amount: "", notes: "" } }));
-    onChanged();
+    setSubmittingId(id);
+    try {
+      await apiRequest(`/api/v1/appointments/${id}`, {
+        method: "PATCH",
+        token,
+        body: {
+          quote_amount_cents: Math.round(Number(form.amount) * 100),
+          quote_notes: form.notes || null,
+        },
+      });
+      setQuoteForms((current) => ({ ...current, [id]: { amount: "", notes: "" } }));
+      onChanged();
+    } finally {
+      setSubmittingId(null);
+    }
   }
 
   function updateQuoteForm(id, key, value) {
@@ -911,10 +931,9 @@ function MechanicAppointments({ token, appointments, onChanged }) {
                   placeholder="Parça + işçilik dahil"
                 />
               </Field>
-              <button className="command command-primary" type="submit">
-                <Send size={18} />
+              <Button className="mt-1 w-full" leftIcon={<Send size={18} />} loading={submittingId === appointment.id} type="submit">
                 Teklif Gönder
-              </button>
+              </Button>
             </form>
             <div className="mt-3 grid grid-cols-3 gap-2">
               {["approved", "in_progress", "completed"].map((status) => (
@@ -941,19 +960,25 @@ function ValetPanel({ token, role, appointments, valetRequests, onChanged }) {
     pickup_address: "Müşteri Adresi",
     dropoff_address: "E-Car Sanayi",
   });
+  const [submitting, setSubmitting] = useState(false);
 
   async function submit(event) {
     event.preventDefault();
-    await apiRequest("/api/v1/valet-requests", {
-      method: "POST",
-      token,
-      body: {
-        appointment_id: form.appointment_id ? Number(form.appointment_id) : null,
-        pickup_address: form.pickup_address,
-        dropoff_address: form.dropoff_address,
-      },
-    });
-    onChanged();
+    setSubmitting(true);
+    try {
+      await apiRequest("/api/v1/valet-requests", {
+        method: "POST",
+        token,
+        body: {
+          appointment_id: form.appointment_id ? Number(form.appointment_id) : null,
+          pickup_address: form.pickup_address,
+          dropoff_address: form.dropoff_address,
+        },
+      });
+      onChanged();
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -985,10 +1010,9 @@ function ValetPanel({ token, role, appointments, valetRequests, onChanged }) {
               onChange={(event) => setForm({ ...form, dropoff_address: event.target.value })}
             />
           </Field>
-          <button className="command command-primary sm:col-span-3" type="submit">
-            <CarFront size={18} />
+          <Button className="w-full sm:col-span-3" leftIcon={<CarFront size={18} />} loading={submitting} type="submit">
             Vale Çağır
-          </button>
+          </Button>
         </form>
       )}
       <TrackingMap token={token} transfers={valetRequests} role={role} />
@@ -1389,44 +1413,54 @@ function ProfilePanel({ user }) {
   );
 }
 
-function SettingsPanel({ theme, onThemeChange }) {
-  const isDark = theme === "dark";
+function SettingsPanel() {
+  const { themeMode, resolvedTheme, setLight, setDark, setSystem } = useTheme();
+  const isDark = resolvedTheme === "dark";
 
   return (
     <Panel title="Ayarlar" icon={Settings}>
       <div className="grid gap-4 lg:grid-cols-[1fr_1fr]">
-        <article className="rounded-3xl border border-mytgo-line bg-white p-4 shadow-sm">
+        <article className="rounded-3xl border border-mytgo-line bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-950/70">
           <p className="text-xs font-black uppercase tracking-[0.2em] text-mytgo-teal">Görünüm</p>
           <h3 className="mt-2 text-lg font-black">Tema seçimi</h3>
           <p className="mt-2 text-sm text-mytgo-muted">
             Bu cihaz için açık veya koyu temayı seçebilirsiniz. Tercih yerel olarak saklanır.
           </p>
-          <div className="mt-4 grid grid-cols-2 gap-2">
-            <button
-              className={`command ${!isDark ? "command-primary" : "command-ghost"}`}
-              type="button"
-              onClick={() => onThemeChange("light")}
+          <div className="mt-4 flex flex-wrap gap-2">
+            <ThemeToggle className="min-w-[10rem] justify-center" />
+            <Button
+              variant="secondary"
+              size="sm"
+              className="min-w-[8rem]"
+              onClick={setSystem}
             >
-              <Sun size={18} />
-              Açık Tema
-            </button>
-            <button
-              className={`command ${isDark ? "command-primary" : "command-ghost"}`}
-              type="button"
-              onClick={() => onThemeChange("dark")}
+              Sistem
+            </Button>
+            <Button
+              variant={!isDark ? "primary" : "secondary"}
+              size="sm"
+              className="min-w-[8rem]"
+              onClick={setLight}
             >
-              <Moon size={18} />
-              Koyu Tema
-            </button>
+              Açık
+            </Button>
+            <Button
+              variant={isDark ? "primary" : "secondary"}
+              size="sm"
+              className="min-w-[8rem]"
+              onClick={setDark}
+            >
+              Koyu
+            </Button>
           </div>
         </article>
 
-        <article className="rounded-3xl border border-mytgo-line bg-white p-4 shadow-sm">
+        <article className="rounded-3xl border border-mytgo-line bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-950/70">
           <p className="text-xs font-black uppercase tracking-[0.2em] text-mytgo-teal">Tercihler</p>
           <h3 className="mt-2 text-lg font-black">Mevcut yapı</h3>
           <DetailRows
             rows={[
-              ["Tema", isDark ? "Koyu" : "Açık"],
+              ["Tema", themeMode === "system" ? `Sistem (${isDark ? "Koyu" : "Açık"})` : isDark ? "Koyu" : "Açık"],
               ["Kayıt alanı", "Tarayıcı localStorage"],
               ["Kapsam", "Sadece bu cihaz ve bu tarayıcı"],
             ]}
@@ -1437,7 +1471,7 @@ function SettingsPanel({ theme, onThemeChange }) {
   );
 }
 
-function AdminPanel({ token, appointments, valetRequests, users, vehicles }) {
+function AdminPanel({ token, appointments, valetRequests, users, vehicles, loading }) {
   const [report, setReport] = useState(null);
   const [reportStatus, setReportStatus] = useState("loading");
   const [reportError, setReportError] = useState(null);
@@ -1464,37 +1498,17 @@ function AdminPanel({ token, appointments, valetRequests, users, vehicles }) {
     loadReport();
   }, [token]);
 
-  const stats = [
-    ["Kullanıcı", users.length],
-    ["Araç", vehicles.length],
-    ["Randevu", appointments.length],
-    ["Vale", valetRequests.length],
-  ];
-
   return (
     <Panel title="Admin" icon={ShieldCheck}>
-      <div className="admin-command-bar" aria-label="Admin hızlı görünüm">
-        <span>
-          <Layers3 size={18} />
-          Operasyon görünümü
-        </span>
-        <span>
-          <BarChart3 size={18} />
-          Raporlar
-        </span>
-        <span>
-          <Activity size={18} />
-          Canlı kapasite
-        </span>
-      </div>
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        {stats.map(([label, value]) => (
-          <div className="rounded-lg border border-mytgo-line bg-white p-4" key={label}>
-            <p className="text-sm text-neutral-500">{label}</p>
-            <p className="mt-1 text-2xl font-semibold">{value}</p>
-          </div>
-        ))}
-      </div>
+      <AdminDashboard
+        appointments={appointments}
+        loading={loading || reportStatus === "loading"}
+        report={report}
+        users={users}
+        valetRequests={valetRequests}
+        vehicles={vehicles}
+        onRefresh={loadReport}
+      />
       <AdminReportPanel
         error={reportError ? { ...reportError, message: getAdminReportErrorMessage(reportError) } : null}
         filters={reportFilters}
@@ -1605,8 +1619,11 @@ function ShellFrame({ title, subtitle, children }) {
             Canlı konum takibi, randevu akışı ve rol bazlı operasyonlar için modern E-Car deneyimi.
           </p>
         </div>
-        <div className="auth-card rounded-[2rem] border border-white/70 bg-white/88 p-5 shadow-soft backdrop-blur sm:p-7">
-          <BrandLogo compact />
+        <div className="auth-card rounded-[2rem] border border-white/70 bg-white/88 p-5 shadow-soft backdrop-blur sm:p-7 dark:border-slate-800 dark:bg-slate-950/80">
+          <div className="flex items-center justify-between gap-3">
+            <BrandLogo compact />
+            <ThemeToggle className="shrink-0" />
+          </div>
           <div className="mt-6 border-b border-mytgo-line pb-5">
             <p className="text-xs font-black uppercase tracking-[0.24em] text-mytgo-teal">{title}</p>
             {subtitle && <h1 className="mt-2 text-2xl font-black">{subtitle}</h1>}
