@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Check, UserRound } from "lucide-react";
+import { Check, Phone, UserRound } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 import { defaultSectionByRole, demoUsers, roleLabels } from "../dashboard/config.js";
@@ -126,11 +126,18 @@ export default function LoginScreen() {
               />
             </Field>
             <Field label="Telefon">
-              <input
-                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none transition focus:border-red-500 focus:ring-4 focus:ring-red-500/10 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-50"
-                value={form.phone}
-                onChange={(event) => update("phone", event.target.value)}
-              />
+              <div className="relative">
+                <Phone
+                  aria-hidden="true"
+                  className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500"
+                  size={18}
+                />
+                <input
+                  className="w-full rounded-2xl border border-slate-200 bg-white py-3 pl-11 pr-4 outline-none transition focus:border-red-500 focus:ring-4 focus:ring-red-500/10 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-50"
+                  value={form.phone}
+                  onChange={(event) => update("phone", event.target.value)}
+                />
+              </div>
             </Field>
             <Field label="Rol">
               <select
