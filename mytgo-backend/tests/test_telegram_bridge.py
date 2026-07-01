@@ -200,6 +200,43 @@ def test_telegram_webhook_routes_natural_language_notifications(monkeypatch):
     assert sent_messages == [(12345, response.json()["reply_text"])]
 
 
+def test_telegram_webhook_falls_back_to_default_user_map_for_authenticated_user(monkeypatch):
+    settings.telegram_bot_token = "test-bot-token"
+    settings.telegram_webhook_secret_token = "bridge-secret"
+    settings.telegram_allowed_chat_ids = "12345"
+    settings.telegram_allowed_user_ids = ""
+
+    sent_messages: list[tuple[int, str]] = []
+
+    async def fake_send_telegram_message(chat_id: int, text: str) -> None:
+        sent_messages.append((chat_id, text))
+
+    monkeypatch.setattr("app.services.telegram_bot.send_telegram_message", fake_send_telegram_message)
+
+    with TestClient(app) as client:
+        user_id = _run(_seed_user_with_notifications())
+        settings.telegram_user_map = f"42:{user_id}"
+        _run(_seed_authenticated_telegram_user(99, display_name="Guest"))
+
+        response = client.post(
+            "/api/v1/integrations/telegram/webhook",
+            headers={"X-Telegram-Bot-Api-Secret-Token": "bridge-secret"},
+            json={
+                "update_id": 205,
+                "message": {
+                    "message_id": 24,
+                    "chat": {"id": 12345, "type": "private"},
+                    "from": {"id": 99, "is_bot": False, "first_name": "Guest"},
+                    "text": "/me",
+                },
+            },
+        )
+
+    assert response.status_code == 200, response.text
+    assert response.json()["reply_text"] == f"MYTGO kullanıcı: Omer (#{user_id}, customer)"
+    assert sent_messages == [(12345, response.json()["reply_text"])]
+
+
 def test_telegram_webhook_routes_coding_request(monkeypatch):
     _PENDING_CODING_REQUESTS.clear()
     settings.telegram_bot_token = "test-bot-token"

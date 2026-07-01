@@ -122,6 +122,14 @@ def telegram_user_map() -> dict[int, int]:
     return parse_user_map(settings.telegram_user_map)
 
 
+def default_mytgo_user_id() -> int | None:
+    mapping = telegram_user_map()
+    if not mapping:
+        return None
+
+    return next(iter(mapping.values()))
+
+
 def is_allowed_update(update: TelegramUpdate) -> bool:
     message = update.message or update.edited_message
     if message is None:
@@ -267,6 +275,8 @@ async def resolve_mytgo_user(db: AsyncSession, message: TelegramMessage) -> User
         return None
 
     app_user_id = telegram_user_map().get(message.from_user.id)
+    if app_user_id is None:
+        app_user_id = default_mytgo_user_id()
     if app_user_id is None:
         return None
 
