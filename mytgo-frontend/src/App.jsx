@@ -186,7 +186,15 @@ function App() {
     );
   }
 
-  return <Dashboard token={token} user={user} theme={theme} onThemeChange={toggleTheme} />;
+  function handleLogout() {
+    clearStoredToken();
+    setToken(null);
+    setUser(null);
+  }
+
+  return (
+    <Dashboard token={token} user={user} theme={theme} onThemeChange={toggleTheme} onLogout={handleLogout} />
+  );
 }
 
 function AuthScreen({ authMode, error, onAuth, onModeChange }) {
@@ -293,7 +301,7 @@ function AuthScreen({ authMode, error, onAuth, onModeChange }) {
   );
 }
 
-function Dashboard({ token, user, theme, onThemeChange }) {
+function Dashboard({ token, user, theme, onThemeChange, onLogout }) {
   const [vehicles, setVehicles] = useState([]);
   const [appointments, setAppointments] = useState([]);
   const [valetRequests, setValetRequests] = useState([]);
@@ -309,13 +317,6 @@ function Dashboard({ token, user, theme, onThemeChange }) {
   const activeMenuItem = menuItems.find(([label]) => label === active) ?? menuItems[0];
   const activeDescription =
     panelDescriptions[active] ?? "Rol bazlı operasyonlar için detaylı işlem alanı.";
-
-  function handleLogout() {
-    clearStoredToken();
-    setToken(null);
-    setUser(null);
-    setSidebarOpen(false);
-  }
 
   const refresh = async () => {
     setError("");
@@ -492,7 +493,10 @@ function Dashboard({ token, user, theme, onThemeChange }) {
         <button
           className="mt-4 flex w-full items-center gap-3 rounded-2xl border border-red-300/20 bg-red-500/10 px-4 py-3 text-left font-bold text-white transition hover:bg-red-500/18"
           type="button"
-          onClick={handleLogout}
+          onClick={() => {
+            setSidebarOpen(false);
+            onLogout();
+          }}
         >
           <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-red-500/15 text-red-100 ring-1 ring-red-300/20">
             <LogOut size={18} />
