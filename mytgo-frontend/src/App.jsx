@@ -5,8 +5,10 @@ import {
   BarChart3,
   BellRing,
   CalendarCheck,
+  BatteryCharging,
   CarFront,
   Check,
+  LifeBuoy,
   Layers3,
   MapPin,
   Menu,
@@ -66,8 +68,11 @@ const roleLabels = {
 };
 
 const panelDescriptions = {
-  Araç: "Araç kaydı, geçmiş ve servis hazırlıkları tek kartta.",
-  Randevu: "Durum takibi, teklif akışı ve servis onayı burada.",
+  Araçlarım: "Araç kaydı, geçmiş ve servis hazırlıkları tek kartta.",
+  "Sanayi Randevu": "Durum takibi, teklif akışı ve servis onayı burada.",
+  Harita: "Araçların ve transferlerin konumunu tek bakışta görün.",
+  "Şarj İstasyonları": "Yakındaki şarj noktaları ve hızlı erişim bilgileri burada.",
+  "Yol Yardım": "Acil destek, çekici ve lastik desteğine hızlı erişim.",
   Vale: "Transfer isteği, rota ve teslim akışı tek bakışta.",
   Chat: "Müşteri ve ekip mesajları canlı konuşma akışında.",
   Bildirimler: "Servis, vale ve chat olayları burada görünür.",
@@ -80,13 +85,11 @@ const panelDescriptions = {
 
 const navByRole = {
   customer: [
-    ["Araç", CarFront],
-    ["Randevu", CalendarCheck],
-    ["Vale", MapPin],
-    ["Chat", MessageCircle],
-    ["Bildirimler", BellRing],
-    ["Profil", UserRound],
-    ["Ayarlar", Settings],
+    ["Araçlarım", CarFront],
+    ["Sanayi Randevu", CalendarCheck],
+    ["Harita", MapPin],
+    ["Şarj İstasyonları", BatteryCharging],
+    ["Yol Yardım", LifeBuoy],
   ],
   mechanic: [
     ["Randevu", Wrench],
@@ -351,14 +354,14 @@ function Dashboard({ token, user, theme, onThemeChange }) {
   }, [token, user.role]);
 
   const panels = {
-    Araç: (
+    Araçlarım: (
       <CustomerVehicles
         token={token}
         vehicles={vehicles}
         onChanged={() => refreshWithNotice(refresh, setNotice, "Araç kaydedildi")}
       />
     ),
-    Randevu:
+    "Sanayi Randevu":
       user.role === "mechanic" ? (
         <MechanicAppointments
           token={token}
@@ -373,6 +376,14 @@ function Dashboard({ token, user, theme, onThemeChange }) {
           onChanged={(message = "Randevu oluşturuldu") => refreshWithNotice(refresh, setNotice, message)}
         />
       ),
+    Harita: (
+      <CustomerMapPanel
+        token={token}
+        valetRequests={valetRequests}
+      />
+    ),
+    "Şarj İstasyonları": <ChargingStationsPanel />,
+    "Yol Yardım": <RoadsideAssistancePanel />,
     Vale: (
       <ValetPanel
         token={token}
@@ -569,6 +580,120 @@ function Dashboard({ token, user, theme, onThemeChange }) {
   );
 }
 
+function CustomerMapPanel({ token, valetRequests }) {
+  return (
+    <Panel title="Harita" icon={MapPin}>
+      <p className="rounded-3xl border border-mytgo-line bg-white px-4 py-3 text-sm text-mytgo-muted shadow-sm">
+        Transfer ve konum akışını harita üzerinden takip edebilirsiniz.
+      </p>
+      <TrackingMap token={token} transfers={valetRequests} role="customer" />
+    </Panel>
+  );
+}
+
+const chargingStations = [
+  {
+    id: 1,
+    name: "MYTGO Hızlı Şarj - Merkez",
+    meta: "DC 180 kW",
+    description: "7/24 açık, ana arter üzerinde.",
+    distance: "2.4 km",
+    status: "Boş",
+  },
+  {
+    id: 2,
+    name: "MYTGO Şarj Noktası - AVM",
+    meta: "AC 22 kW",
+    description: "Alışveriş alanı otoparkında.",
+    distance: "4.8 km",
+    status: "2 araç dolu",
+  },
+  {
+    id: 3,
+    name: "MYTGO Enerji - Sanayi",
+    meta: "DC 120 kW",
+    description: "Servis ve otoyol bağlantısına yakın.",
+    distance: "6.1 km",
+    status: "Bakımda değil",
+  },
+];
+
+function ChargingStationsPanel() {
+  return (
+    <Panel title="Şarj İstasyonları" icon={BatteryCharging}>
+      <CardGrid>
+        {chargingStations.map((station) => (
+          <InfoCard
+            key={station.id}
+            icon={BatteryCharging}
+            title={station.name}
+            meta={station.status}
+            description={`${station.meta} • ${station.distance}`}
+          >
+            <DetailRows
+              rows={[
+                ["Konum", station.description],
+                ["Erişim", "Harita ve navigasyon desteği hazır"],
+                ["Uygunluk", station.status],
+              ]}
+            />
+            <button className="command command-ghost mt-3 w-full" type="button">
+              Yol tarifi aç
+            </button>
+          </InfoCard>
+        ))}
+      </CardGrid>
+    </Panel>
+  );
+}
+
+function RoadsideAssistancePanel() {
+  const assistanceCards = [
+    {
+      title: "Çekici Çağır",
+      meta: "Acil destek",
+      description: "Arıza veya kaza durumlarında en yakın çekici yönlendirmesi.",
+      rows: [
+        ["Yanıt süresi", "Ortalama 10-15 dk"],
+        ["Kapsam", "Şehir içi hızlı yönlendirme"],
+      ],
+    },
+    {
+      title: "Lastik Yardımı",
+      meta: "Mobil servis",
+      description: "Patlak lastik ve basınç desteği için mobil ekip.",
+      rows: [
+        ["Destek", "Şişirme ve değişim"],
+        ["Uygunluk", "Randevusuz öncelikli"],
+      ],
+    },
+    {
+      title: "Akü Takviyesi",
+      meta: "Yerinde çözüm",
+      description: "Marş basmama ve güç kaybı için hızlı akü desteği.",
+      rows: [
+        ["Ekip", "Yerinde müdahale"],
+        ["Çağrı", "Tek dokunuşla yönlendirme"],
+      ],
+    },
+  ];
+
+  return (
+    <Panel title="Yol Yardım" icon={LifeBuoy}>
+      <CardGrid>
+        {assistanceCards.map((item) => (
+          <InfoCard key={item.title} icon={LifeBuoy} title={item.title} meta={item.meta} description={item.description}>
+            <DetailRows rows={item.rows} />
+            <button className="command command-primary mt-3 w-full" type="button">
+              Destek iste
+            </button>
+          </InfoCard>
+        ))}
+      </CardGrid>
+    </Panel>
+  );
+}
+
 function CustomerVehicles({ token, vehicles, onChanged }) {
   const [form, setForm] = useState({ plate_number: "", brand: "", model: "", year: "" });
 
@@ -584,7 +709,7 @@ function CustomerVehicles({ token, vehicles, onChanged }) {
   }
 
   return (
-    <Panel title="Araçlar" icon={CarFront}>
+    <Panel title="Araçlarım" icon={CarFront}>
       <form className="grid gap-3 sm:grid-cols-4" onSubmit={submit}>
         <Field label="Plaka">
           <input
@@ -665,7 +790,7 @@ function CustomerAppointments({ token, vehicles, appointments, onChanged }) {
   }
 
   return (
-    <Panel title="Randevular" icon={CalendarCheck}>
+    <Panel title="Sanayi Randevu" icon={CalendarCheck}>
       <form className="grid gap-3 sm:grid-cols-2" onSubmit={submit}>
         <Field label="Araç">
           <select
@@ -993,15 +1118,21 @@ function TrackingMap({ token, transfers, role }) {
 
   return (
     <div className="mt-4 grid gap-3">
-      <Field label="Transfer">
-        <select value={selectedId} onChange={(event) => setSelectedId(event.target.value)}>
-          {transfers.map((transfer) => (
-            <option key={transfer.id} value={transfer.id}>
-              #{transfer.id} {statusLabels[transfer.status]}
-            </option>
-          ))}
-        </select>
-      </Field>
+      {transfers.length > 0 ? (
+        <Field label="Transfer">
+          <select value={selectedId} onChange={(event) => setSelectedId(event.target.value)}>
+            {transfers.map((transfer) => (
+              <option key={transfer.id} value={transfer.id}>
+                #{transfer.id} {statusLabels[transfer.status]}
+              </option>
+            ))}
+          </select>
+        </Field>
+      ) : (
+        <p className="rounded-3xl border border-dashed border-mytgo-line bg-white px-4 py-3 text-sm text-mytgo-muted">
+          Şu anda gösterilecek transfer yok. Yeni bir yolculuk başladığında harita burada güncellenir.
+        </p>
+      )}
       {role === "valet" && (
         <button className="command command-primary" type="button" onClick={toggleSimulation}>
           {running ? <Square size={18} /> : <Play size={18} />}
