@@ -1582,7 +1582,10 @@ function BrandLogo({ compact = false }) {
       </span>
       {!compact && (
         <span>
-          <span className="block text-2xl font-black tracking-tight text-white">E-Car</span>
+          <span className="brand-wordmark">
+            <span className="block text-2xl font-black tracking-tight text-white">E-Car</span>
+            <span className="brand-wordmark-caret" aria-hidden="true" />
+          </span>
         </span>
       )}
     </div>
