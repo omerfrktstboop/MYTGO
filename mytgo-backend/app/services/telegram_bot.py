@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import logging
 import re
 from collections.abc import Iterable
@@ -15,7 +16,12 @@ from app.models.notification import Notification
 from app.models.telegram_auth import TelegramAuthGrant
 from app.models.user import User
 from app.schemas.telegram import TelegramMessage, TelegramUpdate
-from app.services.coding_operator import build_coding_ack, infer_coding_request, run_coding_request
+from app.services.coding_operator import (
+    build_coding_ack,
+    build_coding_confirmation_text,
+    infer_coding_request,
+    run_coding_request,
+)
 from app.services.notifications import get_unread_notification_count, list_notifications_for_user
 from app.services.telegram_ai import generate_ai_reply
 
@@ -74,6 +80,8 @@ _BLOCKED_OPERATION_TARGETS = (
 )
 
 logger = logging.getLogger(__name__)
+_TELEGRAM_TYPING_ACTION = "typing"
+_PROGRESS_TYPING_INTERVAL_SECONDS = 4
 
 
 def parse_id_list(raw_value: str | None) -> set[int]:
@@ -317,7 +325,7 @@ async def build_reply_text(db: AsyncSession, message: TelegramMessage) -> str | 
     return await generate_ai_reply(message.text, user_name=user_name)
 
 
-async def send_telegram_message(chat_id: int, text: str) -> None:
+async def _telegram_bot_api(method: str, payload: dict[str, object]) -> dict[str, object]:
     token = settings.telegram_bot_token
     if not token:
         raise HTTPException(
@@ -326,18 +334,104 @@ async def send_telegram_message(chat_id: int, text: str) -> None:
         )
 
     api_base = settings.telegram_api_base_url.rstrip("/")
-    url = f"{api_base}/bot{token}/sendMessage"
-    payload = {"chat_id": chat_id, "text": text, "disable_web_page_preview": True}
+    url = f"{api_base}/bot{token}/{method}"
 
     async with httpx.AsyncClient(timeout=settings.telegram_request_timeout_seconds) as client:
         response = await client.post(url, json=payload)
         if response.is_error:
             logger.warning(
-                "telegram_send_error_response status=%s body=%s",
+                "telegram_api_error_response method=%s status=%s body=%s",
+                method,
                 response.status_code,
                 response.text,
             )
         response.raise_for_status()
+        data = response.json()
+        if not isinstance(data, dict):
+            raise HTTPException(
+                status_code=status.HTTP_502_BAD_GATEWAY,
+                detail=f"Unexpected Telegram API response for {method}",
+            )
+        return data
+
+
+async def send_telegram_message(chat_id: int, text: str) -> dict[str, object]:
+    payload = {"chat_id": chat_id, "text": text, "disable_web_page_preview": True}
+    return await _telegram_bot_api("sendMessage", payload)
+
+
+async def edit_telegram_message(chat_id: int, message_id: int, text: str) -> dict[str, object]:
+    payload = {"chat_id": chat_id, "message_id": message_id, "text": text, "disable_web_page_preview": True}
+    return await _telegram_bot_api("editMessageText", payload)
+
+
+async def send_telegram_chat_action(chat_id: int, action: str = _TELEGRAM_TYPING_ACTION) -> dict[str, object]:
+    return await _telegram_bot_api("sendChatAction", {"chat_id": chat_id, "action": action})
+
+
+class TelegramProgressReporter:
+    def __init__(self, chat_id: int) -> None:
+        self.chat_id = chat_id
+        self.message_id: int | None = None
+
+    async def update(self, text: str) -> None:
+        clean = text.strip()
+        if not clean:
+            return
+
+        try:
+            await send_telegram_chat_action(self.chat_id)
+        except Exception as exc:  # pragma: no cover - live Telegram guard
+            logger.warning("telegram_chat_action_failed", extra={"chat_id": self.chat_id, "error": str(exc)})
+
+        if self.message_id is None:
+            try:
+                response = await send_telegram_message(self.chat_id, clean)
+                result = response.get("result") if isinstance(response, dict) else None
+                if isinstance(result, dict):
+                    message_id = result.get("message_id")
+                    if isinstance(message_id, int):
+                        self.message_id = message_id
+            except Exception as exc:  # pragma: no cover - live Telegram guard
+                logger.warning("telegram_progress_send_failed", extra={"chat_id": self.chat_id, "error": str(exc)})
+            return
+
+        try:
+            await edit_telegram_message(self.chat_id, self.message_id, clean)
+        except Exception as exc:  # pragma: no cover - live Telegram guard
+            logger.warning(
+                "telegram_progress_edit_failed",
+                extra={"chat_id": self.chat_id, "message_id": self.message_id, "error": str(exc)},
+            )
+
+    async def finalize(self, text: str) -> bool:
+        clean = text.strip()
+        if not clean or self.message_id is None:
+            return False
+        try:
+            await edit_telegram_message(self.chat_id, self.message_id, clean)
+            return True
+        except Exception as exc:  # pragma: no cover - live Telegram guard
+            logger.warning(
+                "telegram_progress_finalize_failed",
+                extra={"chat_id": self.chat_id, "message_id": self.message_id, "error": str(exc)},
+            )
+            return False
+
+
+async def _typing_heartbeat(chat_id: int, stop_event: asyncio.Event) -> None:
+    try:
+        while not stop_event.is_set():
+            try:
+                await send_telegram_chat_action(chat_id)
+            except Exception as exc:  # pragma: no cover - live Telegram guard
+                logger.warning("telegram_typing_heartbeat_failed", extra={"chat_id": chat_id, "error": str(exc)})
+            try:
+                await asyncio.wait_for(stop_event.wait(), timeout=_PROGRESS_TYPING_INTERVAL_SECONDS)
+            except TimeoutError:
+                continue
+    except asyncio.CancelledError:
+        raise
 
 
 async def process_update(db: AsyncSession, update: TelegramUpdate) -> dict[str, object]:
@@ -351,9 +445,43 @@ async def process_update(db: AsyncSession, update: TelegramUpdate) -> dict[str, 
             detail="Telegram chat or user is not allowlisted",
         )
 
-    reply_text = await build_reply_text(db, message)
+    reply_text: str | None = None
+    delivered_via_progress = False
+    if message.text is not None:
+        access_message = await ensure_telegram_access(db, message)
+        if access_message is not None:
+            reply_text = access_message
+        else:
+            coding_request = infer_coding_request(message.text)
+            if coding_request is not None:
+                progress = TelegramProgressReporter(message.chat.id)
+                stop_event = asyncio.Event()
+                typing_task = asyncio.create_task(_typing_heartbeat(message.chat.id, stop_event))
+                try:
+                    try:
+                        reply_text = await run_coding_request(coding_request, progress_callback=progress.update)
+                    except TypeError as exc:
+                        if "progress_callback" not in str(exc):
+                            raise
+                        reply_text = await run_coding_request(coding_request)
+                    delivered_via_progress = await progress.finalize(reply_text)
+                finally:
+                    stop_event.set()
+                    typing_task.cancel()
+                    try:
+                        await typing_task
+                    except asyncio.CancelledError:
+                        pass
+            else:
+                reply_text = await build_reply_text(db, message)
+    else:
+        reply_text = await build_reply_text(db, message)
+
     if reply_text is None:
         return {"ok": True, "ignored": True, "reason": "no_text"}
+
+    if delivered_via_progress:
+        return {"ok": True, "reply_text": reply_text}
 
     try:
         await send_telegram_message(message.chat.id, reply_text)

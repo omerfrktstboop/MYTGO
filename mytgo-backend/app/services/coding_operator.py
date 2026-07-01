@@ -5,6 +5,7 @@ import asyncio
 import re
 import tempfile
 from pathlib import Path
+from typing import Awaitable, Callable
 
 from app.core.config import settings
 
@@ -55,7 +56,23 @@ _CODE_KEYWORDS = (
 _DEPLOY_KEYWORDS = ("deploy", "canlıya al", "canliya al", "prod", "production")
 _PUSH_KEYWORDS = ("push", "github", "commit", "pr", "pull request")
 _FIX_KEYWORDS = ("düzelt", "duzelt", "fix", "bug", "hata", "kırık", "kirik", "sorun")
-_PLAN_KEYWORDS = ("planla", "tasarla", "özetle", "ozetle", "analiz et", "incele")
+_PLAN_KEYWORDS = (
+    "planla",
+    "tasarla",
+    "özetle",
+    "ozetle",
+    "analiz et",
+    "incele",
+    "öner",
+    "oner",
+    "öneri",
+    "oneri",
+    "tavsiye",
+    "fikir",
+    "nasıl geliştir",
+    "nasil gelistir",
+    "ne ekleyebilir",
+)
 
 
 def _normalize_text(text: str) -> str:
@@ -64,7 +81,7 @@ def _normalize_text(text: str) -> str:
 
 def looks_like_coding_request(text: str) -> bool:
     normalized = _normalize_text(text)
-    return any(keyword in normalized for keyword in _CODE_KEYWORDS)
+    return any(keyword in normalized for keyword in (*_CODE_KEYWORDS, *_PLAN_KEYWORDS))
 
 
 def infer_coding_request(text: str) -> CodingOperatorRequest | None:
@@ -140,6 +157,32 @@ def build_coding_ack(request: CodingOperatorRequest) -> str:
     return "\n".join(lines)
 
 
+def build_coding_confirmation_text(request: CodingOperatorRequest) -> str:
+    if request.action == "plan":
+        return (
+            "Bunu hemen kod değişikliği gibi çalıştırmayayım.\n"
+            f"İstersen şu geliştirme yönünde ilerleyebilirim: {request.summary}\n"
+            "Uygunsa `onay` yaz, ben kod tarafına geçeyim. Push için ayrıca `pushla` demen yeterli."
+        )
+
+    if request.action == "push":
+        return (
+            f"Push isteğini aldım: {request.summary}\n"
+            "Uygunsa `onay` yaz, değişiklikleri GitHub'a göndereyim."
+        )
+
+    if request.action == "deploy":
+        return (
+            f"Deploy isteğini aldım: {request.summary}\n"
+            "Uygunsa `onay` yaz, push gerekiyorsa yapıp ardından deploy sürecini başlatayım."
+        )
+
+    return (
+        f"İstersen şu geliştirmeyi uygulayabilirim: {request.summary}\n"
+        "Uygunsa `onay` yaz, kod değişikliğini başlatayım. Push istersen onu ayrıca yaparım."
+    )
+
+
 def _trim(text: str, limit: int = 1400) -> str:
     clean = text.strip()
     if len(clean) <= limit:
@@ -147,9 +190,47 @@ def _trim(text: str, limit: int = 1400) -> str:
     return clean[: limit - 3].rstrip() + "..."
 
 
-async def run_coding_request(request: CodingOperatorRequest) -> str:
+def _action_completion_title(action: str) -> str:
+    return {
+        "implement": "Kod geliştirmesi tamamlandı.",
+        "fix": "Düzeltme tamamlandı.",
+        "push": "Push işlemi tamamlandı.",
+        "deploy": "Deploy işlemi tamamlandı.",
+        "plan": "Öneri hazır.",
+    }.get(action, "İşlem tamamlandı.")
+
+
+ProgressCallback = Callable[[str], Awaitable[None]]
+
+
+async def run_coding_request(
+    request: CodingOperatorRequest,
+    *,
+    progress_callback: ProgressCallback | None = None,
+) -> str:
     repo_path = Path(settings.codex_repository_path).expanduser()
     prompt = build_codex_prompt(request)
+
+    async def report(text: str) -> None:
+        if progress_callback is not None:
+            await progress_callback(text)
+
+    async def heartbeat() -> None:
+        updates = (
+            "Kod görevi çalışıyor, kısa bir kontrol yapıyorum.",
+            "Hâlâ çalışıyor, değişiklik ve testleri topluyorum.",
+            "İşlem sürüyor, sonuçları hazırlıyorum.",
+        )
+        index = 0
+        try:
+            while True:
+                await asyncio.sleep(6)
+                await report(updates[index % len(updates)])
+                index += 1
+        except asyncio.CancelledError:
+            raise
+
+    await report("İsteği aldım, kod görevini başlatıyorum.")
 
     with tempfile.NamedTemporaryFile(prefix="mytgo-codex-", suffix=".txt", delete=False) as handle:
         last_message_path = Path(handle.name)
@@ -174,7 +255,14 @@ async def run_coding_request(request: CodingOperatorRequest) -> str:
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
     )
+    await report("Codex çalışıyor, bu adım biraz sürebilir.")
+    heartbeat_task = asyncio.create_task(heartbeat())
     stdout_bytes, stderr_bytes = await process.communicate()
+    heartbeat_task.cancel()
+    try:
+        await heartbeat_task
+    except asyncio.CancelledError:
+        pass
     stdout_text = stdout_bytes.decode("utf-8", errors="replace").strip()
     stderr_text = stderr_bytes.decode("utf-8", errors="replace").strip()
     last_message = ""
@@ -186,6 +274,7 @@ async def run_coding_request(request: CodingOperatorRequest) -> str:
             pass
 
     git_status = ""
+    await report("Codex tamamlandı, git durumunu topluyorum.")
     try:
         git_process = await asyncio.create_subprocess_exec(
             "git",
@@ -218,4 +307,5 @@ async def run_coding_request(request: CodingOperatorRequest) -> str:
     if stderr_text and process.returncode != 0:
         parts.append(f"Hata: {_trim(stderr_text)}")
 
+    await report("Son mesaj hazırlanıyor.")
     return "\n".join(parts)

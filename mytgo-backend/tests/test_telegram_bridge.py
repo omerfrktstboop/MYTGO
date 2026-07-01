@@ -210,14 +210,19 @@ def test_telegram_webhook_routes_coding_request(monkeypatch):
 
     sent_messages: list[tuple[int, str]] = []
 
-    async def fake_send_telegram_message(chat_id: int, text: str) -> None:
+    async def fake_send_telegram_message(chat_id: int, text: str):
         sent_messages.append((chat_id, text))
+        return None
+
+    async def fake_send_telegram_chat_action(chat_id: int, action: str = "typing"):
+        return {"ok": True}
 
     async def fake_run_coding_request(request):
         assert request.action == "implement"
         return "Kod görevi tamamlandı.\nDurum: başarılı\nCodex notu: 2 dosya güncellendi."
 
     monkeypatch.setattr("app.services.telegram_bot.send_telegram_message", fake_send_telegram_message)
+    monkeypatch.setattr("app.services.telegram_bot.send_telegram_chat_action", fake_send_telegram_chat_action)
     monkeypatch.setattr("app.services.telegram_bot.run_coding_request", fake_run_coding_request)
 
     with TestClient(app) as client:
@@ -241,6 +246,62 @@ def test_telegram_webhook_routes_coding_request(monkeypatch):
     assert "Durum: başarılı" in response.json()["reply_text"]
     assert "2 dosya güncellendi" in response.json()["reply_text"]
     assert sent_messages == [(12345, response.json()["reply_text"])]
+
+
+def test_telegram_webhook_updates_progress_message_for_coding_request(monkeypatch):
+    settings.telegram_bot_token = "test-bot-token"
+    settings.telegram_webhook_secret_token = "bridge-secret"
+    settings.telegram_allowed_chat_ids = "12345"
+    settings.telegram_allowed_user_ids = "42"
+
+    sent_messages: list[tuple[int, str]] = []
+    edited_messages: list[tuple[int, int, str]] = []
+    chat_actions: list[tuple[int, str]] = []
+
+    async def fake_send_telegram_message(chat_id: int, text: str):
+        sent_messages.append((chat_id, text))
+        return {"ok": True, "result": {"message_id": 9001}}
+
+    async def fake_edit_telegram_message(chat_id: int, message_id: int, text: str):
+        edited_messages.append((chat_id, message_id, text))
+        return {"ok": True, "result": {"message_id": message_id}}
+
+    async def fake_send_telegram_chat_action(chat_id: int, action: str = "typing"):
+        chat_actions.append((chat_id, action))
+        return {"ok": True}
+
+    async def fake_run_coding_request(request, *, progress_callback=None):
+        assert request.action == "implement"
+        assert progress_callback is not None
+        await progress_callback("Kod görevi çalışıyor, kısa bir kontrol yapıyorum.")
+        return "Kod görevi tamamlandı.\nDurum: başarılı"
+
+    monkeypatch.setattr("app.services.telegram_bot.send_telegram_message", fake_send_telegram_message)
+    monkeypatch.setattr("app.services.telegram_bot.edit_telegram_message", fake_edit_telegram_message)
+    monkeypatch.setattr("app.services.telegram_bot.send_telegram_chat_action", fake_send_telegram_chat_action)
+    monkeypatch.setattr("app.services.telegram_bot.run_coding_request", fake_run_coding_request)
+
+    with TestClient(app) as client:
+        _run(_seed_authenticated_telegram_user(42))
+        response = client.post(
+            "/api/v1/integrations/telegram/webhook",
+            headers={"X-Telegram-Bot-Api-Secret-Token": "bridge-secret"},
+            json={
+                "update_id": 61,
+                "message": {
+                    "message_id": 151,
+                    "chat": {"id": 12345, "type": "private"},
+                    "from": {"id": 42, "is_bot": False, "first_name": "Omer"},
+                    "text": "mytgo uygulamasına buton ekle",
+                },
+            },
+        )
+
+    assert response.status_code == 200, response.text
+    assert response.json()["reply_text"] == "Kod görevi tamamlandı.\nDurum: başarılı"
+    assert sent_messages == [(12345, "Kod görevi çalışıyor, kısa bir kontrol yapıyorum.")]
+    assert chat_actions
+    assert edited_messages[-1] == (12345, 9001, "Kod görevi tamamlandı.\nDurum: başarılı")
 
 
 def test_telegram_webhook_routes_plain_text_to_ai(monkeypatch):
